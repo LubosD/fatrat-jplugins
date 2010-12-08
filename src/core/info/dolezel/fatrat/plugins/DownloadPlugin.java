@@ -23,8 +23,10 @@ package info.dolezel.fatrat.plugins;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import java.nio.charset.Charset;
 
 public abstract class DownloadPlugin {
+    final Charset charsetUtf8 = Charset.forName("UTF-8");
 
 	public enum State {
 		Waiting(0),

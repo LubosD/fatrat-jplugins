@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.annotations.PluginInfo;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,12 +33,11 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@PluginInfo(regexp = "http://www.uloz.to/(/live)?\\d+/\\.+", name = "Uloz.to FREE download")
+@PluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/\\.+", name = "Uloz.to FREE download")
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
     static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
-    final Charset charset = Charset.forName("UTF-8");
 
     @Override
     public void processLink(String link) {
@@ -50,7 +49,7 @@ public class UloztoDownload extends DownloadPlugin {
 
             public void onCompleted(ByteBuffer buf, Map<String,String> headers) {
                 try {
-                    CharBuffer cb = charset.decode(buf);
+                    CharBuffer cb = charsetUtf8.decode(buf);
                     final Matcher m = reImage.matcher(cb);
                     final Matcher mAction = reAction.matcher(cb);
 

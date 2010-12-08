@@ -20,15 +20,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ *
+ * @author lubos
+ */
+public class Settings {
+    public static native void setValue(String name, String value);
+    public static native void setValue(String name, long value);
+    public static native void setValue(String name, boolean value);
+    public static native void setValue(String name, double value);
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-
-public @interface PluginInfo {
-	String regexp();
-	String name();
+    public static native Object getValue(String name, Object defValue);
 }
