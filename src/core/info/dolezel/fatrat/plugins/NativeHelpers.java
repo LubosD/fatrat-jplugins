@@ -43,6 +43,10 @@ public class NativeHelpers {
         return (PluginInfo) cls.getAnnotation(PluginInfo.class);
     }
 
+    public static Class[] findPluginClasses(String packageName) throws IOException, ClassNotFoundException {
+        return findAnnotatedClasses(packageName, "info.dolezel.fatrat.plugins.annotations.PluginInfo");
+    }
+
     public static Class[] findAnnotatedClasses(String packageName, String annotation) throws IOException, ClassNotFoundException {
         Class[] c = findAnnotatedClasses(packageName, Class.forName(annotation));
         return c;
