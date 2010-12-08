@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -67,8 +66,8 @@ public class NativeHelpers {
         return classes.toArray(new Class[classes.size()]);
     }
 
-    private static List<Class> findClasses(File directory, String packageName, Class annotation) throws ClassNotFoundException, IOException {
-        List<Class> classes = new ArrayList<Class>();
+    private static Set<Class> findClasses(File directory, String packageName, Class annotation) throws ClassNotFoundException, IOException {
+        Set<Class> classes = new HashSet<Class>();
         if (!directory.exists()) {
 
             String fullPath = directory.toString();
