@@ -23,22 +23,33 @@
 		<javac srcdir="src/plugins/ulozto" destdir="build/classes/ulozto" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto">
+	<target name="compile-hotfile" depends="jar-core">
+		<mkdir dir="build/classes/hotfile"/>
+		<javac srcdir="src/plugins/hotfile" destdir="build/classes/hotfile" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
 		<mkdir dir="dist"/>
-		<jar destfile="dist/fatrat-jplugins.jar" basedir="build/classes/core">
+		<jar destfile="dist/fatrat-jplugins.jar" basedir="build/classes/core" level="9">
 		</jar>
 	</target>
 	
 	<target name="jar-ulozto" depends="compile-ulozto">
 		<mkdir dir="dist"/>
-		<jar destfile="dist/fatrat-ulozto.jar" basedir="build/classes/ulozto">
+		<jar destfile="dist/fatrat-ulozto.jar" basedir="build/classes/ulozto" level="9">
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto">
+	<target name="jar-hotfile" depends="compile-hotfile">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-hotfile.jar" basedir="build/classes/hotfile" level="9">
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile">
 	</target>
 	
 	<target name="clean">
