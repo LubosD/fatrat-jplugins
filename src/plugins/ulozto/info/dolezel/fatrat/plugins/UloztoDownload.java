@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@PluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/\\.+", name = "Uloz.to FREE download")
+@PluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/.+", name = "Uloz.to FREE download")
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
