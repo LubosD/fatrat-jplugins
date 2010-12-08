@@ -28,7 +28,12 @@
 		<javac srcdir="src/plugins/hotfile" destdir="build/classes/hotfile" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile">
+	<target name="compile-fileserve" depends="jar-core">
+		<mkdir dir="build/classes/fileserve"/>
+		<javac srcdir="src/plugins/fileserve" destdir="build/classes/fileserve" debug="on" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -49,7 +54,13 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile">
+	<target name="jar-fileserve" depends="compile-fileserve">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-fileserve.jar" basedir="build/classes/fileserve" level="9">
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve">
 	</target>
 	
 	<target name="clean">
