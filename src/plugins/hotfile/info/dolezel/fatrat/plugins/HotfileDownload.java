@@ -42,6 +42,8 @@ import java.util.regex.Pattern;
 @PluginInfo(regexp = "http://hotfile.com/dl/.+", name = "HotFile.com FREE download")
 public class HotfileDownload extends DownloadPlugin {
 
+    // ";document.getElementById('dwltxt').innerHTML="
+
     static final Pattern reHiddenField = Pattern.compile("<input type=hidden name=([^ ]+) value=([^>]+)>");
     static final Pattern reWaitTime = Pattern.compile("timerend=d\\.getTime\\(\\)\\+(\\d+)");
     static final Pattern reRecaptchaCode = Pattern.compile("src=\"http://api\\.recaptcha\\.net/challenge\\?k=([^\"]+)");
@@ -49,6 +51,11 @@ public class HotfileDownload extends DownloadPlugin {
     static final Pattern reDownloadLink = Pattern.compile("<a href=\"([^\"]+)\" class=\"click_download\">");
 
     Map<String,String> hiddenValues;
+
+    @Override
+    public boolean forceSingleTransfer() {
+        return true;
+    }
 
     // pocka X sekund (v JS v ms)
     // submitne form
@@ -77,6 +84,8 @@ public class HotfileDownload extends DownloadPlugin {
                     setFailed("Failed to find the waiting time");
                     return;
                 }
+                if (!mTime.find())
+                    mTime.find(0);
 
                 wait = (int) Math.ceil(Integer.parseInt(mTime.group(1)) / 1000.0);
 
@@ -84,7 +93,7 @@ public class HotfileDownload extends DownloadPlugin {
 
                     public void onSecondElapsed(int secondsLeft) {
                         if (secondsLeft > 0)
-                            setMessage("Waiting: "+secondsLeft+" seconds left");
+                            setMessage("Waiting: "+DownloadPlugin.formatTime(secondsLeft)+" left");
                         else
                             captchaStep(link);
                     }
