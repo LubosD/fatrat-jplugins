@@ -54,6 +54,7 @@ public abstract class DownloadPlugin {
 	protected native void startWait(int seconds, WaitListener cb);
 	protected native void logMessage(String msg);
     protected native void solveCaptcha(String url, CaptchaListener cb);
+    protected native void reportFileName(String name);
 
 	public void finalCheck(String filePath) {
 	}

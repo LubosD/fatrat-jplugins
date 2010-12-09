@@ -38,20 +38,38 @@ public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
     static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
+    static final Pattern reFileName = Pattern.compile("<h2 class=\"nadpis\" style=\"[^\"]+\"><a href=\"[^\"]+\">([^\"]+)</a></h2>");
+
+    @Override
+    public boolean forceSingleTransfer() {
+        return true;
+    }
 
     @Override
     public void processLink(String link) {
 
         if (link.contains("/live/"))
             link = link.replace("/live/", "/");
+        if (link.startsWith("http://uloz.to"))
+            link = link.replace("http://uloz.to", "http://www.uloz.to");
 
         fetchPage(link, new PageFetchListener() {
 
             public void onCompleted(ByteBuffer buf, Map<String,String> headers) {
                 try {
+                    if (headers.containsKey("location")) {
+                        String location = headers.get("location");
+                        if (location.contains("smazano"))
+                            setFailed("The file has been removed");
+                        else
+                            setFailed("Unexpected redirection");
+                        return;
+                    }
+
                     CharBuffer cb = charsetUtf8.decode(buf);
                     final Matcher m = reImage.matcher(cb);
                     final Matcher mAction = reAction.matcher(cb);
+                    Matcher mName = reFileName.matcher(cb);
 
                     if (!m.find()) {
                         setFailed("Failed to find the captcha code");
@@ -61,6 +79,8 @@ public class UloztoDownload extends DownloadPlugin {
                         setFailed("Failed to find the form action");
                         return;
                     }
+                    if (mName.find())
+                        reportFileName(mName.group(1));
 
                     String captchaUrl = m.group(1);
                     UloztoDownload.this.solveCaptcha(captchaUrl, new CaptchaListener() {

@@ -81,7 +81,7 @@ public class HotfileDownload extends DownloadPlugin {
                 
                 Matcher mTime = reWaitTime.matcher(cb);
                 if (!mTime.find()) {
-                    setFailed("Failed to find the waiting time");
+                    setFailed("Failed to find the waiting time - link dead?");
                     return;
                 }
 
