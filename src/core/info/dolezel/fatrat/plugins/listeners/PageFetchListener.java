@@ -31,9 +31,15 @@ import java.util.Map;
  */
 public interface PageFetchListener extends EventListener {
     /**
-     * @param buf Buffer containt the response body
-     * @param headers
+     * Called after the request page has been fetched.
+     * @param buf Buffer contains the response body
+     * @param headers Contains HTTP headers [header name, value] with lower-case header names
      */
     void onCompleted(ByteBuffer buf, Map<String,String> headers);
+
+    /**
+     * Called if FatRat failed to fetch the requested URL.
+     * @param error Error description
+     */
     void onFailed(String error);
 }

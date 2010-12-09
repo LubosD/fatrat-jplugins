@@ -27,6 +27,14 @@ import java.util.EventListener;
  * @author lubos
  */
 public interface CaptchaListener extends EventListener {
+    /**
+     * Called if FatRat failed to get a captcha solution.
+     */
     void onFailed();
+
+    /**
+     * Called if a captcha solution was found or entered by the user.
+     * @param text The solution
+     */
     void onSolved(String text);
 }

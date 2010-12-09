@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.annotations.PluginInfo;
+import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * http://hotfile.com/dl/87916055/09d2b2e/fatrat-chrome.tar.bz2.html
  * @author lubos
  */
-@PluginInfo(regexp = "http://hotfile.com/dl/.+", name = "HotFile.com FREE download")
+@DownloadPluginInfo(regexp = "http://hotfile.com/dl/.+", name = "HotFile.com FREE download")
 public class HotfileDownload extends DownloadPlugin {
 
     // ";document.getElementById('dwltxt').innerHTML="

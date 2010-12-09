@@ -28,5 +28,9 @@ import java.util.EventListener;
  * @author lubos
  */
 public interface WaitListener extends EventListener {
+    /**
+     * Called every second until the countdown finishes
+     * @param secondsLeft A number between 0..n representing the number of seconds left
+     */
     void onSecondElapsed(int secondsLeft);
 }

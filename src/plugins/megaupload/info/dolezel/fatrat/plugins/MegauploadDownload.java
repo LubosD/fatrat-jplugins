@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.annotations.PluginInfo;
+import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
 import java.nio.ByteBuffer;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author lubos
  */
 
-@PluginInfo(regexp = "http://www\\.megaupload\\.com/\\?d=.+", name = "MegaUpload.com FREE download")
+@DownloadPluginInfo(regexp = "http://www\\.megaupload\\.com/\\?d=.+", name = "MegaUpload.com FREE download")
 public class MegauploadDownload extends DownloadPlugin {
     // http://www.megaupload.com/?d=GQ7217A4
     // http://www.megaupload.com/?d=4HB740K4

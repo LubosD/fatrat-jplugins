@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.annotations.PluginInfo;
+import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.ByteBuffer;
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@PluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/.+", name = "Uloz.to FREE download")
+@DownloadPluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/.+", name = "Uloz.to FREE download")
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
@@ -42,7 +42,7 @@ public class UloztoDownload extends DownloadPlugin {
 
     @Override
     public boolean forceSingleTransfer() {
-        return true;
+        return false;
     }
 
     @Override

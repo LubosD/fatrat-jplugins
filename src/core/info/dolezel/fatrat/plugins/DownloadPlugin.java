@@ -23,53 +23,66 @@ package info.dolezel.fatrat.plugins;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
-import java.nio.charset.Charset;
 
-public abstract class DownloadPlugin {
-    final Charset charsetUtf8 = Charset.forName("UTF-8");
-
-	public enum State {
-		Waiting(0),
-		Active(1),
-		ForcedActive(2),
-		Paused(3),
-		Failed(4),
-		Completed(5);
-
-        private final int v;
-        State(int v) {
-            this.v = v;
-        }
-        public int value() {
-            return v;
-        }
-	};
-
+public abstract class DownloadPlugin extends TransferPlugin {
     public abstract void processLink(String link);
 
-	protected native void setMessage(String msg);
-	protected native void setState(State state);
+    /**
+     * Downloads the specified URL.
+     * @param url The URL to be downloaded.
+     * @param cb A callback object where you'll receive the data
+     * @param postData Optional data to be sent using the POST method
+     */
 	protected native void fetchPage(String url, PageFetchListener cb, String postData);
+
+    /**
+     * Gives FatRat the URL to download the desired file.
+     * This is the last step in the whole procedure.
+     * @param url
+     */
 	protected native void startDownload(String url);
+
+    /**
+     * FatRat will call back every second until the timer expires
+     * @param seconds Wait period
+     * @param cb Callback
+     */
 	protected native void startWait(int seconds, WaitListener cb);
-	protected native void logMessage(String msg);
+
+    /**
+     * Ask FatRat to solve a captcha image
+     * @param url URL of the image
+     * @param cb Callback with the result
+     */
     protected native void solveCaptcha(String url, CaptchaListener cb);
+
+    /**
+     * Give FatRat a hint on the real file name, if it cannot be properly deduced from the URL
+     * @param name A file name
+     */
     protected native void reportFileName(String name);
 
+    /**
+     * Reimplement if you need to check e.g. for HTML files containing 'File not found' after you call startDownload()
+     * @param filePath The path where the file has been downloaded
+     */
 	public void finalCheck(String filePath) {
 	}
 
+    /**
+     * Reimplement if the file hoster supports file resume
+     * @return
+     */
 	public boolean truncIncomplete() {
 		return true;
 	}
-    
-    public boolean forceSingleTransfer() {
-        return false;
-    }
 
-    public void setFailed(String error) {
-        setMessage(error);
-        setState(State.Failed);
+    /**
+     * Reimplement if the file hoster doesn't allow more than 1 download per IP address
+     * @return
+     */
+    public boolean forceSingleTransfer() {
+        return true;
     }
 
     public static String formatTime(int seconds) {

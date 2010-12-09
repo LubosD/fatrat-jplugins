@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.annotations.PluginInfo;
+import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
@@ -29,8 +29,6 @@ import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +36,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@PluginInfo(regexp = "http://www\\.fileserve\\.com/file/.+", name = "FileServe.com FREE download")
+@DownloadPluginInfo(regexp = "http://www\\.fileserve\\.com/file/.+", name = "FileServe.com FREE download")
 public class FileserveDownload extends DownloadPlugin {
 
     static final Pattern reCaptchaKey = Pattern.compile("var reCAPTCHA_publickey='([^']+)';");
@@ -47,11 +45,6 @@ public class FileserveDownload extends DownloadPlugin {
     static final Pattern reLongWait = Pattern.compile("(\\d+) seconds to start another download");
 
     private String shortenCode;
-
-    @Override
-    public boolean forceSingleTransfer() {
-        return true;
-    }
 
     @Override
     public void processLink(final String link) {
