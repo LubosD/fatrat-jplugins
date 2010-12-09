@@ -30,10 +30,15 @@
 	
 	<target name="compile-fileserve" depends="jar-core">
 		<mkdir dir="build/classes/fileserve"/>
-		<javac srcdir="src/plugins/fileserve" destdir="build/classes/fileserve" debug="on" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/fileserve" destdir="build/classes/fileserve" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve">
+	<target name="compile-megaupload" depends="jar-core">
+		<mkdir dir="build/classes/megaupload"/>
+		<javac srcdir="src/plugins/megaupload" destdir="build/classes/megaupload" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -60,7 +65,13 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve">
+	<target name="jar-megaupload" depends="compile-megaupload">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-megaupload.jar" basedir="build/classes/megaupload" level="9">
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload">
 	</target>
 	
 	<target name="clean">

@@ -63,8 +63,9 @@ public class FileserveDownload extends DownloadPlugin {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 final Matcher mKey = reCaptchaKey.matcher(cb);
                 Matcher mShort = reShortenCode.matcher(cb);
+                String scb = cb.toString();
 
-                if (cb.toString().contains("The file could not be found")) {
+                if (scb.contains("The file could not be found") || scb.contains("File not available")) {
                     setFailed("File not found");
                     return;
                 }
