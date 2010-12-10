@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.charset.Charset;
 
 /**
@@ -49,6 +50,14 @@ public class TransferPlugin {
             return v;
         }
 	};
+
+    /**
+     * Downloads the specified URL.
+     * @param url The URL to be downloaded.
+     * @param cb A callback object where you'll receive the data
+     * @param postData Optional data to be sent using the POST method
+     */
+	protected native void fetchPage(String url, PageFetchListener cb, String postData);
 
     /**
      * Sets the message seen in the transfer list

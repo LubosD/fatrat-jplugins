@@ -28,14 +28,6 @@ public abstract class DownloadPlugin extends TransferPlugin {
     public abstract void processLink(String link);
 
     /**
-     * Downloads the specified URL.
-     * @param url The URL to be downloaded.
-     * @param cb A callback object where you'll receive the data
-     * @param postData Optional data to be sent using the POST method
-     */
-	protected native void fetchPage(String url, PageFetchListener cb, String postData);
-
-    /**
      * Gives FatRat the URL to download the desired file.
      * This is the last step in the whole procedure.
      * @param url

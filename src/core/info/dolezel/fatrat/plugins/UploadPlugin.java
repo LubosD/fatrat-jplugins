@@ -20,10 +20,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+
 /**
  *
  * @author lubos
  */
-public class UploadPlugin extends TransferPlugin {
+public abstract class UploadPlugin extends TransferPlugin {
+    public abstract void processFile(String filePath);
+    public abstract void checkResponse(ByteBuffer uploadResponse);
 
+    protected static class MimePart {
+        public String name;
+
+        private MimePart() {
+        }
+    }
+    protected static class MimePartValue extends MimePart {
+        public String value;
+
+        public MimePartValue(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+    }
+    protected static class MimePartFile extends MimePart {
+        public MimePartFile(String name) {
+            this.name = name;
+        }
+    }
+
+    protected native void startUpload(String url, List<MimePart> mimeParts);
+    protected native void putDownloadLink(String url);
 }

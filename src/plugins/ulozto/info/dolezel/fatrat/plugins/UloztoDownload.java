@@ -59,7 +59,7 @@ public class UloztoDownload extends DownloadPlugin {
                 try {
                     if (headers.containsKey("location")) {
                         String location = headers.get("location");
-                        if (location.contains("smazano"))
+                        if (location.contains("smazano") || location.contains("nenalezeno"))
                             setFailed("The file has been removed");
                         else
                             setFailed("Unexpected redirection");
