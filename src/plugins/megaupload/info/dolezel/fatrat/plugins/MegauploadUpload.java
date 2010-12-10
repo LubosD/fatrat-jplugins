@@ -44,6 +44,7 @@ public class MegauploadUpload extends UploadPlugin {
 
     @Override
     public void processFile(final String filePath) {
+        setMessage("Locating a server available for upload");
         fetchPage("http://www.megaupload.com/ut/", new PageFetchListener() {
 
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
@@ -61,6 +62,7 @@ public class MegauploadUpload extends UploadPlugin {
                 parts.add(new MimePartFile("Filedata"));
                 parts.add(new MimePartValue("message", file.getName()));
 
+                setMessage("Uploading");
                 startUpload(url, parts);
             }
 
@@ -71,7 +73,7 @@ public class MegauploadUpload extends UploadPlugin {
     }
 
     @Override
-    public void checkResponse(ByteBuffer uploadResponse) {
+    public void checkResponse(ByteBuffer uploadResponse, Map<String,String> headers) {
         CharBuffer cb = charsetUtf8.decode(uploadResponse);
         Matcher m = reURL.matcher(cb);
 

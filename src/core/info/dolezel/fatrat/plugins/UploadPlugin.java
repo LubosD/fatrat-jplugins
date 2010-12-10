@@ -22,6 +22,7 @@ package info.dolezel.fatrat.plugins;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -29,7 +30,7 @@ import java.util.List;
  */
 public abstract class UploadPlugin extends TransferPlugin {
     public abstract void processFile(String filePath);
-    public abstract void checkResponse(ByteBuffer uploadResponse);
+    public abstract void checkResponse(ByteBuffer uploadResponse, Map<String,String> headers);
 
     protected static class MimePart {
         public String name;
