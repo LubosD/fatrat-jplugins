@@ -20,16 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.charset.Charset;
 
 /**
  *
  * @author lubos
  */
-public class TransferPlugin {
-    final Charset charsetUtf8 = Charset.forName("UTF-8");
-
+public abstract class TransferPlugin extends Plugin {
     /**
      * You should probably only use the Failed state.
      * Other states are to be set by the user or by the queue manager.
@@ -50,14 +47,6 @@ public class TransferPlugin {
             return v;
         }
 	};
-
-    /**
-     * Downloads the specified URL.
-     * @param url The URL to be downloaded.
-     * @param cb A callback object where you'll receive the data
-     * @param postData Optional data to be sent using the POST method
-     */
-	protected native void fetchPage(String url, PageFetchListener cb, String postData);
 
     /**
      * Sets the message seen in the transfer list

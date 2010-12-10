@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
-import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
 
 public abstract class DownloadPlugin extends TransferPlugin {
