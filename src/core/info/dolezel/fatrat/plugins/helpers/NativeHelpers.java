@@ -21,30 +21,67 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins.helpers;
 
-import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  *
  * @author lubos
  */
 public class NativeHelpers {
-    public static DownloadPluginInfo getClassInfo(Class cls) {
-        if (!cls.isAnnotationPresent(DownloadPluginInfo.class))
-            return null;
-        return (DownloadPluginInfo) cls.getAnnotation(DownloadPluginInfo.class);
+    private static MyClassLoader loader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
+
+    static class MyClassLoader extends URLClassLoader {
+        public MyClassLoader(ClassLoader parent) {
+            super(new URL[0], parent);
+        }
+        
+        public void addJar(String path) throws MalformedURLException {
+            URL url = new URL("jar", "", "file:"+ path + "!/");
+            addURL(url);
+        }
     }
 
-    public static Class[] findDownloadPluginClasses(String packageName) throws IOException, ClassNotFoundException {
-        return findAnnotatedClasses(packageName, DownloadPluginInfo.class.getName());
+    public static Map<String,String> getPackageVersions() throws IOException {
+        Map<String,String> rv = new HashMap<String,String>();
+        String[] jars = System.getProperty("java.class.path").split(":");
+
+        for (String jar : jars) {
+            JarFile file = new JarFile(new File(jar));
+            Manifest manifest = file.getManifest();
+            Attributes attr = manifest.getMainAttributes();
+
+            int ind = jar.lastIndexOf('/');
+            if (ind != -1)
+                jar = jar.substring(ind+1);
+
+            rv.put(jar, attr.getValue("Implementation-Version"));
+        }
+
+        return rv;
+    }
+
+    public static void loadPackage(String path) throws Exception {
+        loader.addJar(path);
+    }
+
+    public static Class[] findAnnotatedClasses(String path, String packageName, String annotation) throws IOException, ClassNotFoundException {
+        URL url = new URL("jar", "", "file:"+ path + "!/");
+        Set<Class> classes = findClasses(new File(url.getFile()), packageName, Class.forName(annotation));
+        return classes.toArray(new Class[classes.size()]);
     }
 
     public static Class[] findAnnotatedClasses(String packageName, String annotation) throws IOException, ClassNotFoundException {
@@ -53,14 +90,15 @@ public class NativeHelpers {
     }
 
     public static Class[] findAnnotatedClasses(String packageName, Class annotation) throws IOException, ClassNotFoundException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        assert classLoader != null;
         String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
+        Enumeration<URL> resources = loader.getResources(path);
         Set<File> dirs = new HashSet<File>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             dirs.add(new File(resource.getFile()));
+        }
+        for (URL url : loader.getURLs()) {
+            dirs.add(new File(url.getFile()));
         }
 
         ArrayList<Class> classes = new ArrayList<Class>();
@@ -84,7 +122,7 @@ public class NativeHelpers {
                 String entryName = entry.getName();
                 if(entryName.endsWith(".class") && !entryName.contains("$")) {
                     String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
-                    Class cls = Class.forName(className);
+                    Class cls = loader.loadClass(className);
 
                     if (annotation == null || cls.isAnnotationPresent(annotation))
                         classes.add(cls);
@@ -97,7 +135,7 @@ public class NativeHelpers {
                     assert !file.getName().contains(".");
                     classes.addAll(findClasses(file, packageName + "." + file.getName(), annotation));
                 } else if (file.getName().endsWith(".class")) {
-                    Class cls = Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
+                    Class cls = loader.loadClass(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
 
                     if (annotation == null || cls.isAnnotationPresent(annotation))
                         classes.add(cls);
@@ -107,16 +145,22 @@ public class NativeHelpers {
         return classes;
     }
 
-
+    /*
     public static void main(String[] args) {
         try {
-            Class[] c = findAnnotatedClasses("info.dolezel.fatrat.plugins", "info.dolezel.fatrat.plugins.PluginInfo");
+            loader.addJar(args[0]);
+            
+            Class[] c = findAnnotatedClasses("info.dolezel.fatrat.plugins", "info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo");
             for (Class cc : c)
                 System.out.println(cc);
+            getPackageVersions();
+            
+            //loadPackage(args[0], Class.forName("info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo"));
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
     }
+    */
 }

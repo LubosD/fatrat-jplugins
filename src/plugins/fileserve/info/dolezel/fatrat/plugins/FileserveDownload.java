@@ -43,6 +43,7 @@ public class FileserveDownload extends DownloadPlugin {
     static final Pattern reShortenCode = Pattern.compile("<input type=\"hidden\" id=\"recaptcha_shortencode_field\" name=\"recaptcha_shortencode_field\" value=\"([^\"]+)\" />");
     static final Pattern reImageCode = Pattern.compile("challenge : '([^']+)");
     static final Pattern reLongWait = Pattern.compile("(\\d+) seconds to start another download");
+    static final Pattern reName = Pattern.compile("<h1>([^<]+)");
 
     private String shortenCode;
 
@@ -67,6 +68,10 @@ public class FileserveDownload extends DownloadPlugin {
                     setFailed("Cannot parse the first page");
                     return;
                 }
+
+                Matcher mName = reName.matcher(cb);
+                if (mName.find())
+                    FileserveDownload.this.reportFileName(mName.group(1));
 
                 shortenCode = mShort.group(1);
 

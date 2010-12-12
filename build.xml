@@ -9,6 +9,7 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="fatrat-jplugins" default="default" basedir=".">
     <description>Builds, tests, and runs the project fatrat-jplugins.</description>
+	<tstamp/>
 	
 	<target name="default" depends="jar">
 	</target>
@@ -44,30 +45,45 @@
 	<target name="jar-core" depends="compile-core">
 		<mkdir dir="dist"/>
 		<jar destfile="dist/fatrat-jplugins.jar" basedir="build/classes/core" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
 		</jar>
 	</target>
 	
 	<target name="jar-ulozto" depends="compile-ulozto">
 		<mkdir dir="dist"/>
 		<jar destfile="dist/fatrat-ulozto.jar" basedir="build/classes/ulozto" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
 		</jar>
 	</target>
 	
 	<target name="jar-hotfile" depends="compile-hotfile">
 		<mkdir dir="dist"/>
 		<jar destfile="dist/fatrat-hotfile.jar" basedir="build/classes/hotfile" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
 		</jar>
 	</target>
 	
 	<target name="jar-fileserve" depends="compile-fileserve">
 		<mkdir dir="dist"/>
 		<jar destfile="dist/fatrat-fileserve.jar" basedir="build/classes/fileserve" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
 		</jar>
 	</target>
 	
 	<target name="jar-megaupload" depends="compile-megaupload">
 		<mkdir dir="dist"/>
 		<jar destfile="dist/fatrat-megaupload.jar" basedir="build/classes/megaupload" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
 		</jar>
 	</target>
 	

@@ -60,22 +60,6 @@ public abstract class DownloadPlugin extends TransferPlugin {
 	public void finalCheck(String filePath) {
 	}
 
-    /**
-     * Reimplement if the file hoster supports file resume
-     * @return
-     */
-	public boolean truncIncomplete() {
-		return true;
-	}
-
-    /**
-     * Reimplement if the file hoster doesn't allow more than 1 download per IP address
-     * @return
-     */
-    public boolean forceSingleTransfer() {
-        return true;
-    }
-
     public static String formatTime(int seconds) {
         StringBuilder result = new StringBuilder();
         int days,hrs,mins,secs;

@@ -31,4 +31,6 @@ import java.lang.annotation.Target;
 public @interface DownloadPluginInfo {
 	String regexp();
 	String name();
+    boolean truncIncomplete() default true;
+    boolean forceSingleTransfer() default true;
 }

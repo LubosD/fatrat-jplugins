@@ -33,17 +33,12 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@DownloadPluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/.+", name = "Uloz.to FREE download")
+@DownloadPluginInfo(regexp = "http://www.uloz.to/(live/)?\\d+/.+", name = "Uloz.to FREE download", forceSingleTransfer = false)
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
     static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
     static final Pattern reFileName = Pattern.compile("<h2 class=\"nadpis\" style=\"[^\"]+\"><a href=\"[^\"]+\">([^\"]+)</a></h2>");
-
-    @Override
-    public boolean forceSingleTransfer() {
-        return false;
-    }
 
     @Override
     public void processLink(String link) {

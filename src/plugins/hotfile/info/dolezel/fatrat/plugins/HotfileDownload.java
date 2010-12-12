@@ -50,11 +50,6 @@ public class HotfileDownload extends DownloadPlugin {
 
     Map<String,String> hiddenValues;
 
-    @Override
-    public boolean forceSingleTransfer() {
-        return true;
-    }
-
     // pocka X sekund (v JS v ms)
     // submitne form
     // recaptcha
@@ -72,6 +67,7 @@ public class HotfileDownload extends DownloadPlugin {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher mHidden = reHiddenField.matcher(cb);
                 int wait;
+                boolean longWait = false;
 
                 hiddenValues = new HashMap<String,String>();
                 while (mHidden.find())
@@ -87,16 +83,25 @@ public class HotfileDownload extends DownloadPlugin {
                 if (mTime.find()) { // long waiting
                     int xwait = (int) Math.ceil(Integer.parseInt(mTime.group(1)) / 1000.0);
                     if (xwait > wait)
+                    {
                         wait = xwait;
+                        longWait = true;
+                    }
                 }
+
+                final boolean longWaitF = longWait;
 
                 HotfileDownload.this.startWait(wait, new WaitListener() {
 
                     public void onSecondElapsed(int secondsLeft) {
                         if (secondsLeft > 0)
                             setMessage("Waiting: "+DownloadPlugin.formatTime(secondsLeft)+" left");
-                        else
-                            captchaStep(link);
+                        else {
+                            if (!longWaitF)
+                                captchaStep(link);
+                            else
+                                processLink(link);
+                        }
                     }
                 });
             }
