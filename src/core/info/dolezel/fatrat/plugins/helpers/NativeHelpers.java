@@ -60,18 +60,31 @@ public class NativeHelpers {
         String[] jars = System.getProperty("java.class.path").split(":");
 
         for (String jar : jars) {
-            JarFile file = new JarFile(new File(jar));
-            Manifest manifest = file.getManifest();
-            Attributes attr = manifest.getMainAttributes();
-
-            int ind = jar.lastIndexOf('/');
-            if (ind != -1)
-                jar = jar.substring(ind+1);
-
-            rv.put(jar, attr.getValue("Implementation-Version"));
+            getPackageVersion(jar, rv);
+        }
+        for (URL url : loader.getURLs()) {
+            String jarPath = url.getPath().replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+            getPackageVersion(jarPath, rv);
         }
 
         return rv;
+    }
+
+    private static void getPackageVersion(String jar, Map<String,String> rv) throws IOException {
+        File fo = new File(jar);
+
+        if (!fo.exists())
+            return;
+
+        JarFile file = new JarFile(fo);
+        Manifest manifest = file.getManifest();
+        Attributes attr = manifest.getMainAttributes();
+
+        int ind = jar.lastIndexOf('/');
+        if (ind != -1)
+            jar = jar.substring(ind+1);
+
+        rv.put(jar, attr.getValue("Implementation-Version"));
     }
 
     public static void loadPackage(String path) throws Exception {
