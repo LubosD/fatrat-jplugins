@@ -131,7 +131,12 @@ public class HotfileDownload extends DownloadPlugin {
                 String rcCode;
 
                 if (!mRC.find()) {
-                    setFailed("Failed to find the recaptcha code");
+                    Matcher md = reDownloadLink.matcher(cb);
+                    if (md.find()) {
+                        String url = md.group(1);
+                        HotfileDownload.this.startDownload(url);
+                    } else
+                        setFailed("Failed to find the recaptcha code");
                     return;
                 }
 
