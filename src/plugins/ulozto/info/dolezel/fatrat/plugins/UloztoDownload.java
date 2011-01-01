@@ -57,7 +57,7 @@ public class UloztoDownload extends DownloadPlugin {
                         if (location.contains("smazano") || location.contains("nenalezeno"))
                             setFailed("The file has been removed");
                         else
-                            setFailed("Unexpected redirection");
+                            processLink(location);
                         return;
                     }
 
