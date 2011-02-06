@@ -26,6 +26,8 @@ import info.dolezel.fatrat.plugins.listeners.WaitListener;
 public abstract class DownloadPlugin extends TransferPlugin {
     public abstract void processLink(String link);
 
+    public void onFailed() {}
+
     /**
      * Gives FatRat the URL to download the desired file.
      * This is the last step in the whole procedure.
