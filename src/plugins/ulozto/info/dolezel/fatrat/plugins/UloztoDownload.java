@@ -174,7 +174,7 @@ public class UloztoDownload extends DownloadPlugin {
     }
 
     private void rememberCaptcha(final String id, final String captchaUrl, final String solved) {
-        if (rememberedCaptcha != null)
+        if (rememberedCaptcha != null && rememberedCaptcha.id.equals(id))
             return;
         
         fetchPage(captchaUrl, new PageFetchListener() {

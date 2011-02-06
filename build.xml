@@ -39,7 +39,12 @@
 		<javac srcdir="src/plugins/megaupload" destdir="build/classes/megaupload" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload">
+	<target name="compile-edisk" depends="jar-core">
+		<mkdir dir="build/classes/edisk"/>
+		<javac srcdir="src/plugins/edisk" destdir="build/classes/edisk" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -87,7 +92,16 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload">
+	<target name="jar-edisk" depends="compile-edisk">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-edisk.jar" basedir="build/classes/edisk" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk">
 	</target>
 	
 	<target name="clean">

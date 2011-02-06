@@ -26,14 +26,26 @@ import info.dolezel.fatrat.plugins.listeners.WaitListener;
 public abstract class DownloadPlugin extends TransferPlugin {
     public abstract void processLink(String link);
 
+    /**
+     * Called from native code to notify the plugin that the download has failed either
+     * because of setState/setFailed called by the extension or because of an HTTP
+     * failure encountered in the native code.
+     *
+     * Override this method only if you need it as a captcha caching hint.
+     */
     public void onFailed() {}
 
     /**
      * Gives FatRat the URL to download the desired file.
      * This is the last step in the whole procedure.
-     * @param url
+     * @param url URL to download, all received cookies will be used automatically
+     * @param referrer Optional HTTP Referer URL
      */
-	protected native void startDownload(String url);
+	protected native void startDownload(String url, String referrer);
+
+    protected void startDownload(String url) {
+        startDownload(url, null);
+    }
 
     /**
      * FatRat will call back every second until the timer expires
