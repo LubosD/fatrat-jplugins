@@ -23,6 +23,8 @@ package info.dolezel.fatrat.plugins.helpers;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -156,6 +158,27 @@ public class NativeHelpers {
             }
         }
         return classes;
+    }
+
+    public static String loadDialogFile(String path) {
+        try {
+            InputStream stream = loader.getResourceAsStream(path);
+            if (stream == null)
+                return null;
+            InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
+
+            char[] buf = new char[1024];
+            StringBuilder sb = new StringBuilder();
+            int read;
+
+            while ( (read = reader.read(buf)) > 0)
+                sb.append(buf, 0, read);
+
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /*

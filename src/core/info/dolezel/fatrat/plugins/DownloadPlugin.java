@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,15 @@ package info.dolezel.fatrat.plugins;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
 
+/**
+ * Extend this class to create a new download plugin.
+ * @author lubos
+ */
 public abstract class DownloadPlugin extends TransferPlugin {
+
+    /**
+     * This method will be called when a download is to be started.
+     */
     public abstract void processLink(String link);
 
     /**
@@ -41,10 +49,15 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param url URL to download, all received cookies will be used automatically
      * @param referrer Optional HTTP Referer URL
      */
-	protected native void startDownload(String url, String referrer);
+	protected native void startDownload(String url, String referrer, String userAgent);
 
+    /**
+     * Gives FatRat the URL to download the desired file.
+     * This is the last step in the whole procedure.
+     * @param url URL to download, all received cookies will be used automatically
+     */
     protected void startDownload(String url) {
-        startDownload(url, null);
+        startDownload(url, null, null);
     }
 
     /**
@@ -74,6 +87,9 @@ public abstract class DownloadPlugin extends TransferPlugin {
 	public void finalCheck(String filePath) {
 	}
 
+    /**
+     * Formats the time in seconds into a user friendly String.
+     */
     public static String formatTime(int seconds) {
         StringBuilder result = new StringBuilder();
         int days,hrs,mins,secs;

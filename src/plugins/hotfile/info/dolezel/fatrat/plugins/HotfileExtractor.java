@@ -37,7 +37,7 @@ public class HotfileExtractor extends ExtractorPlugin {
     static final Pattern reLink = Pattern.compile("<a href=\"(http://hotfile\\.com/dl/[^\"]+)\">");
 
     @Override
-    public List<String> extractList(String url, ByteBuffer data) throws Exception {
+    public String[] extractList(String url, ByteBuffer data) throws Exception {
         List<String> rv = new ArrayList<String>();
         CharBuffer cb = charsetUtf8.decode(data);
         Matcher m = reLink.matcher(cb);
@@ -45,7 +45,7 @@ public class HotfileExtractor extends ExtractorPlugin {
         while (m.find())
             rv.add(m.group(1));
 
-        return rv;
+        return (String[]) rv.toArray();
     }
 
 }

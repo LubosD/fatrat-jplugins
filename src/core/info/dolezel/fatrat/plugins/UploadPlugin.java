@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,16 +29,40 @@ import java.util.Map;
  * @author lubos
  */
 public abstract class UploadPlugin extends TransferPlugin {
+    /**
+     * Called by the application to start the upload
+     * @param filePath Path of a local file
+     */
     public abstract void processFile(String filePath);
+
+    /**
+     * Called to perform checks whether the upload was OK and to extract
+     * the download link.
+     * @param uploadResponse Body of the server response
+     * @param headers HTTP headers
+     */
     public abstract void checkResponse(ByteBuffer uploadResponse, Map<String,String> headers);
 
+    /**
+     * A generic MIME part with a name
+     */
     protected static class MimePart {
+        /**
+         * HTTP form field name
+         */
         public String name;
 
         private MimePart() {
         }
     }
+
+    /**
+     * A HTML form field value (input type=text,hidden...)
+     */
     protected static class MimePartValue extends MimePart {
+        /**
+         * HTTP form field value
+         */
         public String value;
 
         public MimePartValue(String name, String value) {
@@ -46,12 +70,29 @@ public abstract class UploadPlugin extends TransferPlugin {
             this.value = value;
         }
     }
+
+    /**
+     * The file to be uploaded.
+     * This subclass exists only so that the application would know
+     * under what field name the file should be uploaded.
+     */
     protected static class MimePartFile extends MimePart {
         public MimePartFile(String name) {
             this.name = name;
         }
     }
 
+    /**
+     * Call to initiate the upload process.
+     * @param url URL where the data should be HTTP POSTed
+     * @param mimeParts MIME parts of the request
+     */
     protected native void startUpload(String url, List<MimePart> mimeParts);
+
+    /**
+     * Gives the user the link for the file that has been uploaded.
+     * Should be called from checkResponse()
+     * @param url Download URL
+     */
     protected native void putDownloadLink(String url);
 }

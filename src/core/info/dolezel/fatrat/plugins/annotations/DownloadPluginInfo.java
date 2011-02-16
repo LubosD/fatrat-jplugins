@@ -29,8 +29,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 
 public @interface DownloadPluginInfo {
+    /** A regexp for URLs this class supports */
 	String regexp();
+    /** Download type name to be shown to the user */
 	String name();
+    /** Set to false if the server supports resume */
     boolean truncIncomplete() default true;
+    /** Set to false if the server allows parallel downloads */
     boolean forceSingleTransfer() default true;
 }

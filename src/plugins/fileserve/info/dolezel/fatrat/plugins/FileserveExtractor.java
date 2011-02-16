@@ -38,7 +38,7 @@ public class FileserveExtractor extends ExtractorPlugin {
     static final Pattern reLink = Pattern.compile("<a href=\"(/file/[^\"]+)\" class=\"sheet_icon wbold\">");
 
     @Override
-    public List<String> extractList(String url, ByteBuffer data) throws Exception {
+    public String[] extractList(String url, ByteBuffer data) throws Exception {
         List<String> rv = new ArrayList<String>();
         CharBuffer cb = charsetUtf8.decode(data);
         Matcher m = reLink.matcher(cb);
@@ -46,7 +46,7 @@ public class FileserveExtractor extends ExtractorPlugin {
         while (m.find())
             rv.add("http://www.fileserve.com" + m.group(1));
 
-        return rv;
+        return (String[]) rv.toArray();
     }
 
 }

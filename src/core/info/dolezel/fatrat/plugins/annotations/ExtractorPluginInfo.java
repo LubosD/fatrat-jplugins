@@ -25,6 +25,9 @@ package info.dolezel.fatrat.plugins.annotations;
  * @author lubos
  */
 public @interface ExtractorPluginInfo {
+    /** A regexp for URLs this class supports */
     String regexp();
+
+    /** Download (extractor) type name to be shown to the user */
 	String name();
 }

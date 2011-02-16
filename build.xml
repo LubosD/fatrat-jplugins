@@ -44,7 +44,18 @@
 		<javac srcdir="src/plugins/edisk" destdir="build/classes/edisk" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk">
+	<target name="compile-netload" depends="jar-core">
+		<mkdir dir="build/classes/netload"/>
+		<javac srcdir="src/plugins/netload" destdir="build/classes/netload" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile-sharerapid" depends="jar-core">
+		<mkdir dir="build/classes/sharerapid"/>
+		<copy file="src/plugins/sharerapid/share-rapid.xml" todir="build/classes/sharerapid"/>
+		<javac srcdir="src/plugins/sharerapid" destdir="build/classes/sharerapid" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -101,7 +112,25 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk">
+	<target name="jar-netload" depends="compile-netload">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-netload.jar" basedir="build/classes/netload" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar-sharerapid" depends="compile-sharerapid">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-sharerapid.jar" basedir="build/classes/sharerapid" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid">
 	</target>
 	
 	<target name="clean">
