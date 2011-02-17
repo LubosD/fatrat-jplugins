@@ -44,6 +44,14 @@ public class ShareRapidDownload extends DownloadPlugin {
 
         fetchPage("http://share-rapid.com/checkfiles.php", new PageFetchListener() {
 
+        /*
+         * {"error":true,"msg":"Not found","msgex":"Soubor byl smaz"}
+
+           {"error":false,"filename":"Takers.2010.DVD.XviD.CZ-KiNOBOX.part1.rar","filepath":"1902105\/takers-2010-dvd-xvid-cz-kinobox-part1.rar",
+                "size":"1047527424","subdomain":"s02","msgId":200}\r\n
+
+         */
+
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
 

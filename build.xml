@@ -55,7 +55,13 @@
 		<javac srcdir="src/plugins/sharerapid" destdir="build/classes/sharerapid" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid">
+	<target name="compile-youtube" depends="jar-core">
+		<mkdir dir="build/classes/youtube"/>
+		<copy file="src/plugins/youtube/youtube.xml" todir="build/classes/youtube"/>
+		<javac srcdir="src/plugins/youtube" destdir="build/classes/youtube" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -130,7 +136,16 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid">
+	<target name="jar-youtube" depends="compile-youtube">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-youtube.jar" basedir="build/classes/youtube" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube">
 	</target>
 	
 	<target name="clean">

@@ -1,0 +1,9 @@
+<dialog title="YouTube.com video options">
+    <group title="Format preference">
+        <order id="youtube/formats">
+            <option value="webm">WebM</option>
+            <option value="mp4">MP4</option>
+            <option value="flv">FLV</option>
+        </order>
+    </group>
+</dialog>

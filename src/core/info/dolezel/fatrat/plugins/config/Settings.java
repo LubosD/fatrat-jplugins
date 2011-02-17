@@ -31,4 +31,5 @@ public class Settings {
     public static native void setValue(String name, double value);
 
     public static native Object getValue(String name, Object defValue);
+    public static native Object[] getValueArray(String name);
 }

@@ -49,7 +49,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param url URL to download, all received cookies will be used automatically
      * @param referrer Optional HTTP Referer URL
      */
-	protected native void startDownload(String url, String referrer, String userAgent);
+	protected native void startDownload(String url, String referrer, String userAgent, String fileName);
 
     /**
      * Gives FatRat the URL to download the desired file.
@@ -57,7 +57,13 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param url URL to download, all received cookies will be used automatically
      */
     protected void startDownload(String url) {
-        startDownload(url, null, null);
+        startDownload(url, null, null, null);
+    }
+    protected void startDownload(String url, String referrer) {
+        startDownload(url, referrer, null, null);
+    }
+    protected void startDownload(String url, String referrer, String userAgent) {
+        startDownload(url, referrer, userAgent, null);
     }
 
     /**
