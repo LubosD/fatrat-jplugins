@@ -25,20 +25,25 @@ import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.util.PostQuery;
+import info.dolezel.fatrat.plugins.util.XmlUtils;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @DownloadPluginInfo(name = "CZshare.com premium download", regexp = "http://(www\\.)?czshare\\.com/(\\d+/.+|download_file\\.php\\?id=(\\d+)&file=(.+))")
 @ConfigDialog("czshare.xml")
 public class CzshareDownload extends DownloadPlugin {
     static final Pattern reOldUrl = Pattern.compile("http://(www\\.)?czshare\\.com/download_file\\.php\\?id=(\\d+)&file=(.+)");
-    static final Pattern reNewUrl = Pattern.compile("http://(www\\.)?czshare\\.com/\\d+/(.+)");
-    static final Pattern reConverted = Pattern.compile("<a href=\"(http://www\\d+.czshare.com/\\d+/[^\"]+/)\">");
+    static final Pattern reNewUrl = Pattern.compile("http://(www\\.)?czshare\\.com/(\\d+)/(.+)/(.+)");
+    static final Map<Long,String> convertedLinks = new HashMap<Long,String>();
 
-    String link, username, password;
+    String link, username, password, linkCode;
+    long linkId;
 
     @Override
     public void processLink(String link) {
@@ -46,11 +51,17 @@ public class CzshareDownload extends DownloadPlugin {
         if (mOld.matches()) {
             String fileName = mOld.group(3);
             link = "http://czshare.com/" + mOld.group(2) + "/" + fileName;
+            linkId = Long.parseLong(mOld.group(2));
             reportFileName(fileName);
         } else {
             Matcher mNew = reNewUrl.matcher(link);
-            if (mNew.matches())
-                reportFileName(mNew.group(1));
+            if (mNew.matches()) {
+                linkId = Long.parseLong(mNew.group(2));
+                linkCode = mNew.group(3);
+                reportFileName(mNew.group(4));
+            } else {
+                setFailed("Unsupported link");
+            }
         }
 
         this.link = link;
@@ -63,60 +74,75 @@ public class CzshareDownload extends DownloadPlugin {
             return;
         }
 
-        fetchPage("http://czshare.com/prihlasit.php", new PageFetchListener() {
-
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                // Now we have a PHPSESSID cookie
-
-                doLogin();
-            }
-
-            public void onFailed(String error) {
-                setFailed(error);
-            }
-        }, null);
+        getLink(true);
     }
 
-    private void doLogin() {
-        fetchPage("http://czshare.com/prihlasit.php", new PageFetchListener() {
+    private void getLink(boolean login) {
+        fetchPage("http://czshare.com/mulup/show_profi_links.php", new PageFetchListener() {
 
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                if (!headers.containsKey("location") || !headers.get("location").startsWith("http://czshare.com/profi")) {
-                    setFailed("Login failed");
-                    return;
-                }
+                try {
+                    Document doc = XmlUtils.loadDocument(buf);
 
-                convertLink();
+                    Node error = XmlUtils.xpathNode(doc, "/new_up/error");
+                    if (error != null)
+                        throw new Exception(error.getTextContent());
+
+                    synchronized(convertedLinks) {
+                        NodeList list = XmlUtils.xpathNodeList(doc, "/new_up/soubor");
+                        convertedLinks.clear();
+                        
+                        for (int i = 0; i < list.getLength(); i++) {
+                            Node n = list.item(i);
+                            long id = Long.parseLong(XmlUtils.xpathString(n, "id/text()"));
+                            String link = XmlUtils.xpathString(n, "odkaz/text()");
+
+                            System.out.println("ID: "+id+", link: "+link);
+
+                            convertedLinks.put(id, link);
+                        }
+
+                        if (convertedLinks.containsKey(linkId)) {
+                            startDownload(convertedLinks.get(linkId));
+                            return;
+                        }
+                    }
+                    
+                    convertLink();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    setFailed(ex.toString() + " - " + ex.getMessage());
+                }
             }
 
             public void onFailed(String error) {
                 setFailed(error);
             }
 
-        }, new PostQuery().add("id", "").add("file", "").add("prihlasit", "Přihlásit").add("step", "1")
-                .add("jmeno2", username).add("heslo", password).toString());
+        }, (login) ? new PostQuery().add("jmeno", username).add("heslo", password).toString() : "");
     }
 
     private void convertLink() {
-        fetchPage("http://czshare.com/profi/graber.php", new PageFetchListener() {
+        fetchPage("http://czshare.com/mulup/new_link.php", new PageFetchListener() {
 
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                CharBuffer cb = charsetUtf8.decode(buf);
-                Matcher m = reConverted.matcher(cb);
+                try {
+                    Document doc = XmlUtils.loadDocument(buf);
+                    Node error = XmlUtils.xpathNode(doc, "/new_up/error");
+                    if (error != null)
+                        throw new Exception(error.getTextContent());
 
-                if (!m.find()) {
-                    setFailed("Failed to convert the link");
-                    return;
+                    getLink(false);
+                } catch (Exception ex) {
+                    setFailed(ex.getMessage());
                 }
-
-                startDownload(m.group(1));
             }
 
             public void onFailed(String error) {
                 setFailed(error);
             }
 
-        }, new PostQuery().add("stahovat", "stahovat").add("linky", link).toString());
+        }, new PostQuery().add("id", Long.toString(linkId)).add("kod", linkCode).toString());
     }
 
     private static boolean isEmpty(String str) {
