@@ -1,4 +1,4 @@
-<dialog title="YouTube.com video options">
+<dialog title="CZshare.com account settings">
     <group title="Download account">
         <text id="czshare/username" title="User" />
         <password id="czshare/password" title="Password" />

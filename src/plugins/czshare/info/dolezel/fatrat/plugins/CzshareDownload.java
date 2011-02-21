@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 @ConfigDialog("czshare.xml")
 public class CzshareDownload extends DownloadPlugin {
     static final Pattern reOldUrl = Pattern.compile("http://(www\\.)?czshare\\.com/download_file\\.php\\?id=(\\d+)&file=(.+)");
+    static final Pattern reNewUrl = Pattern.compile("http://(www\\.)?czshare\\.com/\\d+/(.+)");
     static final Pattern reConverted = Pattern.compile("<a href=\"(http://www\\d+.czshare.com/\\d+/[^\"]+/)\">");
 
     String link, username, password;
@@ -42,8 +43,15 @@ public class CzshareDownload extends DownloadPlugin {
     @Override
     public void processLink(String link) {
         Matcher mOld = reOldUrl.matcher(link);
-        if (mOld.matches())
-            link = "http://czshare.com/" + mOld.group(2) + "/" + mOld.group(3);
+        if (mOld.matches()) {
+            String fileName = mOld.group(3);
+            link = "http://czshare.com/" + mOld.group(2) + "/" + fileName;
+            reportFileName(fileName);
+        } else {
+            Matcher mNew = reNewUrl.matcher(link);
+            if (mNew.matches())
+                reportFileName(mNew.group(1));
+        }
 
         this.link = link;
 
