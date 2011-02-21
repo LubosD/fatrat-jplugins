@@ -61,7 +61,13 @@
 		<javac srcdir="src/plugins/youtube" destdir="build/classes/youtube" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube">
+	<target name="compile-czshare" depends="jar-core">
+		<mkdir dir="build/classes/czshare"/>
+		<copy file="src/plugins/czshare/czshare.xml" todir="build/classes/czshare"/>
+		<javac srcdir="src/plugins/czshare" destdir="build/classes/czshare" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -145,7 +151,16 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube">
+	<target name="jar-czshare" depends="compile-czshare">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-czshare.jar" basedir="build/classes/czshare" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare">
 	</target>
 	
 	<target name="clean">

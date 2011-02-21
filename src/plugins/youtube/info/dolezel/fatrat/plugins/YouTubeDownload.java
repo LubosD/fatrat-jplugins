@@ -43,6 +43,7 @@ public class YouTubeDownload extends DownloadPlugin {
     static final int[] formatsMP4 = { 38, 37, 22, 18 }; // 18 always
     static final int[] formatsWebM = { 45, 43 };
     static final int[] formatsFLV = { 35, 34, 5 };
+    static final String[] defaultPriorities = new String[] { "webm", "mp4", "flv" };
 
     @Override
     public void processLink(String link) {
@@ -96,7 +97,7 @@ public class YouTubeDownload extends DownloadPlugin {
                 // Std. priorities: WebM, MP4, FLV
                 String[] prios = (String[]) Settings.getValueArray("youtube/formats");
                 if (prios == null || prios.length != 3)
-                    prios = new String[] { "webm", "mp4", "flv" };
+                    prios = defaultPriorities;
 
                 int sel = -1;
                 String ext = null;
