@@ -92,7 +92,8 @@ public abstract class UploadPlugin extends TransferPlugin {
     /**
      * Gives the user the link for the file that has been uploaded.
      * Should be called from checkResponse()
-     * @param url Download URL
+     * @param urlDownload Download URL
+     * @param killLink Optional kill link for file removal
      */
-    protected native void putDownloadLink(String url);
+    protected native void putDownloadLink(String urlDownload, String killLink);
 }
