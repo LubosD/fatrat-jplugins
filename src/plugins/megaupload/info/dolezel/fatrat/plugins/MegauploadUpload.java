@@ -78,7 +78,7 @@ public class MegauploadUpload extends UploadPlugin {
         Matcher m = reURL.matcher(cb);
 
         if (m.find())
-            putDownloadLink(m.group(1));
+            putDownloadLink(m.group(1), null);
         else
             setFailed("The upload has failed for an unknown reason");
     }

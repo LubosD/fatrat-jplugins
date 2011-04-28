@@ -32,13 +32,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //http://www.youtube.com/watch?v=fyPlhd7BE3w&feature=rec-LGOUT-exp_fresh+div-1r-1-HM
-@DownloadPluginInfo(name = "YouTube.com video download", regexp = "https?://(www\\.)?youtube\\.com/watch.+")
+@DownloadPluginInfo(name = "YouTube.com video download", regexp = "https?://(www\\.)?youtube\\.com/watch.+", forceSingleTransfer = false)
 @ConfigDialog("youtube.xml")
 public class YouTubeDownload extends DownloadPlugin {
     static final Pattern reParamT = Pattern.compile("\"t\": \"([^\"]+)\"");
     static final Pattern reStreamMap = Pattern.compile("\"fmt_stream_map\": \"([^\"]+)\"");
     static final Pattern reVideoID = Pattern.compile("\"video_id\": \"([^\"]+)\"");
     static final Pattern reTitle = Pattern.compile("<meta name=\"title\" content=\"([^\"]+)\">");
+    static final Pattern reUnicodeChar = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
 
     static final int[] formatsMP4 = { 38, 37, 22, 18 }; // 18 always
     static final int[] formatsWebM = { 45, 43 };
@@ -86,6 +87,7 @@ public class YouTubeDownload extends DownloadPlugin {
                     String[] tokens = fmt.split("\\|");
                     int code = Integer.parseInt(tokens[0]);
                     String url = tokens[1].replaceAll("\\\\/", "/");
+                    url = unescapeUrl(url);
 
                     formatMap.put(code, url);
                 }
@@ -140,4 +142,17 @@ public class YouTubeDownload extends DownloadPlugin {
         }, null);
     }
 
+    // removes JavaScript escape sequences
+    private static String unescapeUrl(String url) {
+        Matcher m = reUnicodeChar.matcher(url);
+        StringBuffer sb = new StringBuffer();
+        
+        while (m.find()) {
+            char c = (char) Integer.parseInt(m.group(1), 16);
+            m.appendReplacement(sb, ""+c);
+        }
+        m.appendTail(sb);
+        
+        return sb.toString();
+    }
 }

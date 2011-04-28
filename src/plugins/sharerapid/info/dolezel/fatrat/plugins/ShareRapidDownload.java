@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
 
-@DownloadPluginInfo(name = "Share-rapid.com FREE download", regexp = "http://(share-rapid\\.com|sharerapid.cz)/stahuj/\\d+/.+")
+@DownloadPluginInfo(name = "Share-rapid.com FREE download", regexp = "http://(share-rapid\\.com|sharerapid.cz)/stahuj/\\d+/.+", forceSingleTransfer = false)
 @ConfigDialog("share-rapid.xml")
 public class ShareRapidDownload extends DownloadPlugin {
 

@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,4 +30,8 @@ public @interface ExtractorPluginInfo {
 
     /** Download (extractor) type name to be shown to the user */
 	String name();
+
+    /** Suggested transfer class */
+    String transferClassName() default "";
+    Class transferClass() default Object.class;
 }

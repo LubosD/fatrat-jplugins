@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,13 +33,13 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@ExtractorPluginInfo(name="FileServe.com", regexp="http://www\\.fileserve\\.com/list/.+")
+@ExtractorPluginInfo(name="FileServe.com link list extractor", regexp="http://www\\.fileserve\\.com/list/.+", transferClass = FileserveDownload.class)
 public class FileserveExtractor extends ExtractorPlugin {
 
     static final Pattern reLink = Pattern.compile("<a href=\"(/file/[^\"]+)\" class=\"sheet_icon wbold\">");
 
     @Override
-    public String[] extractList(String url, ByteBuffer data) throws Exception {
+    public void extractList(String url, ByteBuffer data, Map<String,String> headers) throws Exception {
         List<String> rv = new ArrayList<String>();
         CharBuffer cb = charsetUtf8.decode(data);
         Matcher m = reLink.matcher(cb);
@@ -46,7 +47,7 @@ public class FileserveExtractor extends ExtractorPlugin {
         while (m.find())
             rv.add("http://www.fileserve.com" + m.group(1));
 
-        return (String[]) rv.toArray();
+        finishedExtraction( (String[]) rv.toArray() );
     }
 
 }

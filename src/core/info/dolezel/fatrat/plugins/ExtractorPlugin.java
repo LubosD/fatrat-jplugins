@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  *
@@ -34,5 +35,7 @@ public abstract class ExtractorPlugin extends Plugin {
      * @return A list of extracted links
      * @throws Exception
      */
-    public abstract String[] extractList(String url, ByteBuffer data) throws Exception;
+    public abstract void extractList(String url, ByteBuffer data, Map<String,String> headers) throws Exception;
+
+    public native void finishedExtraction(String[] links);
 }

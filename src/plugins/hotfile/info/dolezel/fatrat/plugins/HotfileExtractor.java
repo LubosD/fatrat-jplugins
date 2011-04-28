@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,12 +33,11 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@ExtractorPluginInfo(regexp = "http://hotfile\\.com/list/.+", name = "HotFile.com")
+@ExtractorPluginInfo(regexp = "http://hotfile\\.com/list/.+", name = "HotFile.com link list extractor", transferClass = HotfileDownload.class)
 public class HotfileExtractor extends ExtractorPlugin {
     static final Pattern reLink = Pattern.compile("<a href=\"(http://hotfile\\.com/dl/[^\"]+)\">");
 
-    @Override
-    public String[] extractList(String url, ByteBuffer data) throws Exception {
+    public void extractList(String url, ByteBuffer data, Map<String,String> headers) throws Exception {
         List<String> rv = new ArrayList<String>();
         CharBuffer cb = charsetUtf8.decode(data);
         Matcher m = reLink.matcher(cb);
@@ -45,7 +45,7 @@ public class HotfileExtractor extends ExtractorPlugin {
         while (m.find())
             rv.add(m.group(1));
 
-        return (String[]) rv.toArray();
+        finishedExtraction((String[]) rv.toArray());
     }
 
 }

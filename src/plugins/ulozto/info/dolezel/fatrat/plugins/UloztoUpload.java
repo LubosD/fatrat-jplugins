@@ -92,7 +92,7 @@ public class UloztoUpload extends UploadPlugin {
                         if (loc == null)
                             loc = url;
 
-                        putDownloadLink(loc);
+                        putDownloadLink(loc, null);
                         setMessage("Done");
                     }
 
