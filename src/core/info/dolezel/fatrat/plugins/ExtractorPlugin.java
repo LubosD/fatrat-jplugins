@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @author lubos
  */
-public abstract class ExtractorPlugin extends Plugin {
+public abstract class ExtractorPlugin extends TransferPlugin {
     /**
      * Called by the application to extract all the links in the page.
      * @param url Original page URL

@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -138,7 +139,7 @@ public class NativeHelpers {
                 if(entryName.endsWith(".class") && !entryName.contains("$")) {
                     String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
                     Class cls = loader.loadClass(className);
-
+                    
                     if (annotation == null || cls.isAnnotationPresent(annotation))
                         classes.add(cls);
                 }

@@ -24,6 +24,11 @@
 		<javac srcdir="src/plugins/ulozto" destdir="build/classes/ulozto" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
+	<target name="compile-rapidshare" depends="jar-core">
+		<mkdir dir="build/classes/rapidshare"/>
+		<javac srcdir="src/plugins/rapidshare" destdir="build/classes/rapidshare" classpath="dist/fatrat-jplugins.jar" />
+	</target>
+	
 	<target name="compile-hotfile" depends="jar-core">
 		<mkdir dir="build/classes/hotfile"/>
 		<javac srcdir="src/plugins/hotfile" destdir="build/classes/hotfile" classpath="dist/fatrat-jplugins.jar" />
@@ -67,7 +72,7 @@
 		<javac srcdir="src/plugins/czshare" destdir="build/classes/czshare" classpath="dist/fatrat-jplugins.jar" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -160,7 +165,16 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare">
+	<target name="jar-rapidshare" depends="compile-rapidshare">
+		<mkdir dir="dist"/>
+		<jar destfile="dist/fatrat-rapidshare.jar" basedir="build/classes/rapidshare" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare">
 	</target>
 	
 	<target name="clean">
