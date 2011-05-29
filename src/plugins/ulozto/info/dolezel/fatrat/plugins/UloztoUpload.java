@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @UploadPluginInfo(name="Uloz.to uploader", sizeLimit = 1000*1000*1000*2)
 public class UloztoUpload extends UploadPlugin {
 
-    static final Pattern reSid = Pattern.compile("\"/ajax/uploader.php?tmp_sid=([^\"]+)\"");
+    static final Pattern reSid = Pattern.compile("\"/ajax/uploader\\.php\\?tmp_sid=([^\"]+)\"");
     static final Pattern reFid = Pattern.compile("&fileid=(\\d+)");
 
     @Override
@@ -62,7 +62,7 @@ public class UloztoUpload extends UploadPlugin {
                 parts.add(new MimePartValue("no_script_submit", "Nahr%C3%A9t+soubory"));
 
                 setMessage("Uploading");
-                startUpload(url, parts);
+                startUpload(url, parts.toArray(new MimePart[0]));
             }
 
             public void onFailed(String error) {

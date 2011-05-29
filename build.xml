@@ -21,55 +21,55 @@
 	
 	<target name="compile-ulozto" depends="jar-core">
 		<mkdir dir="build/classes/ulozto"/>
-		<javac srcdir="src/plugins/ulozto" destdir="build/classes/ulozto" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/ulozto" destdir="build/classes/ulozto" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-rapidshare" depends="jar-core">
 		<mkdir dir="build/classes/rapidshare"/>
-		<javac srcdir="src/plugins/rapidshare" destdir="build/classes/rapidshare" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/rapidshare" destdir="build/classes/rapidshare" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-hotfile" depends="jar-core">
 		<mkdir dir="build/classes/hotfile"/>
-		<javac srcdir="src/plugins/hotfile" destdir="build/classes/hotfile" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/hotfile" destdir="build/classes/hotfile" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-fileserve" depends="jar-core">
 		<mkdir dir="build/classes/fileserve"/>
-		<javac srcdir="src/plugins/fileserve" destdir="build/classes/fileserve" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/fileserve" destdir="build/classes/fileserve" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-megaupload" depends="jar-core">
 		<mkdir dir="build/classes/megaupload"/>
-		<javac srcdir="src/plugins/megaupload" destdir="build/classes/megaupload" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/megaupload" destdir="build/classes/megaupload" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-edisk" depends="jar-core">
 		<mkdir dir="build/classes/edisk"/>
-		<javac srcdir="src/plugins/edisk" destdir="build/classes/edisk" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/edisk" destdir="build/classes/edisk" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-netload" depends="jar-core">
 		<mkdir dir="build/classes/netload"/>
-		<javac srcdir="src/plugins/netload" destdir="build/classes/netload" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/netload" destdir="build/classes/netload" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-sharerapid" depends="jar-core">
 		<mkdir dir="build/classes/sharerapid"/>
 		<copy file="src/plugins/sharerapid/share-rapid.xml" todir="build/classes/sharerapid"/>
-		<javac srcdir="src/plugins/sharerapid" destdir="build/classes/sharerapid" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/sharerapid" destdir="build/classes/sharerapid" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-youtube" depends="jar-core">
 		<mkdir dir="build/classes/youtube"/>
 		<copy file="src/plugins/youtube/youtube.xml" todir="build/classes/youtube"/>
-		<javac srcdir="src/plugins/youtube" destdir="build/classes/youtube" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/youtube" destdir="build/classes/youtube" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile-czshare" depends="jar-core">
 		<mkdir dir="build/classes/czshare"/>
 		<copy file="src/plugins/czshare/czshare.xml" todir="build/classes/czshare"/>
-		<javac srcdir="src/plugins/czshare" destdir="build/classes/czshare" classpath="dist/fatrat-jplugins.jar" />
+		<javac srcdir="src/plugins/czshare" destdir="build/classes/czshare" classpath="dist/fatrat-jplugins.jar;lib/commons-lang-2.6.jar" />
 	</target>
 	
 	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare">

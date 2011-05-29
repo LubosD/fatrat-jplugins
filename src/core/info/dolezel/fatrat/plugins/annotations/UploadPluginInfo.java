@@ -20,10 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author lubos
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+
 public @interface UploadPluginInfo {
     /** Upload type name to be shown to the user */
 	String name();

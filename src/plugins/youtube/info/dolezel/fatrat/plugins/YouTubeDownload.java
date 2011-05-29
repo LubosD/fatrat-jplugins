@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringEscapeUtils;
 
 //http://www.youtube.com/watch?v=fyPlhd7BE3w&feature=rec-LGOUT-exp_fresh+div-1r-1-HM
 @DownloadPluginInfo(name = "YouTube.com video download", regexp = "https?://(www\\.)?youtube\\.com/watch.+", forceSingleTransfer = false)
@@ -40,6 +41,7 @@ public class YouTubeDownload extends DownloadPlugin {
     static final Pattern reVideoID = Pattern.compile("\"video_id\": \"([^\"]+)\"");
     static final Pattern reTitle = Pattern.compile("<meta name=\"title\" content=\"([^\"]+)\">");
     static final Pattern reUnicodeChar = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
+    static final Pattern reHtmlEscapedChar = Pattern.compile("&#(\\d+);");
 
     static final int[] formatsMP4 = { 38, 37, 22, 18 }; // 18 always
     static final int[] formatsWebM = { 45, 43 };
@@ -76,6 +78,7 @@ public class YouTubeDownload extends DownloadPlugin {
                     if (!m.find())
                         throw new Exception("Parse error");
                     title = m.group(1);
+                    title = StringEscapeUtils.unescapeHtml(title);
                 } catch (Exception e) {
                     setFailed(e.getMessage());
                     return;
@@ -87,7 +90,7 @@ public class YouTubeDownload extends DownloadPlugin {
                     String[] tokens = fmt.split("\\|");
                     int code = Integer.parseInt(tokens[0]);
                     String url = tokens[1].replaceAll("\\\\/", "/");
-                    url = unescapeUrl(url);
+                    url = StringEscapeUtils.unescapeJavaScript(url);
 
                     formatMap.put(code, url);
                 }
@@ -140,19 +143,5 @@ public class YouTubeDownload extends DownloadPlugin {
                 setFailed(error);
             }
         }, null);
-    }
-
-    // removes JavaScript escape sequences
-    private static String unescapeUrl(String url) {
-        Matcher m = reUnicodeChar.matcher(url);
-        StringBuffer sb = new StringBuffer();
-        
-        while (m.find()) {
-            char c = (char) Integer.parseInt(m.group(1), 16);
-            m.appendReplacement(sb, ""+c);
-        }
-        m.appendTail(sb);
-        
-        return sb.toString();
     }
 }

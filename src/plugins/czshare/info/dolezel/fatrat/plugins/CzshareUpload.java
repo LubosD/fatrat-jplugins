@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.annotations.UploadPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.ByteBuffer;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
+@UploadPluginInfo(name = "CZshare.com upload", sizeLimit = 0)
 public class CzshareUpload extends UploadPlugin {
     static final Pattern reUploadUrl = Pattern.compile("action=\"(http://www\\d+\\.czshare\\.com/cgi-bin/upload\\.cgi[^\\\"]+)\"");
     static final Pattern reHidden = Pattern.compile("<input type=\"hidden\" name=\"([^\\\"]+)\" value=\"([^\\\"]+)\">");
@@ -64,7 +66,7 @@ public class CzshareUpload extends UploadPlugin {
                 String partnerId = Settings.getValue("czshare/partnerid", "").toString();
                 fields.add(new MimePartValue("partner_id", partnerId));
 
-                startUpload(m.group(1), fields);
+                startUpload(m.group(1), fields.toArray(new MimePart[0]));
             }
 
             public void onFailed(String error) {

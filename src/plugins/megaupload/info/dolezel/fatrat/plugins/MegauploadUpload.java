@@ -63,7 +63,7 @@ public class MegauploadUpload extends UploadPlugin {
                 parts.add(new MimePartValue("message", file.getName()));
 
                 setMessage("Uploading");
-                startUpload(url, parts);
+                startUpload(url, parts.toArray(new MimePart[0]));
             }
 
             public void onFailed(String error) {

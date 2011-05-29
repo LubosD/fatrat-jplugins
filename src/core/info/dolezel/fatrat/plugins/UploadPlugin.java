@@ -87,7 +87,7 @@ public abstract class UploadPlugin extends TransferPlugin {
      * @param url URL where the data should be HTTP POSTed
      * @param mimeParts MIME parts of the request
      */
-    protected native void startUpload(String url, List<MimePart> mimeParts);
+    protected native void startUpload(String url, MimePart[] mimeParts);
 
     /**
      * Gives the user the link for the file that has been uploaded.
