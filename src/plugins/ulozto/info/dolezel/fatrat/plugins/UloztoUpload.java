@@ -56,13 +56,13 @@ public class UloztoUpload extends UploadPlugin {
                 }
 
                 String url = "http://up.uloz.to/ul/upload.cgi?tmp_sid="+m.group(1)+"&user_id=0&host=www.uloz.to";
-                List<MimePart> parts = new ArrayList<MimePart>(3);
-                parts.add(new MimePartFile("upfile_0"));
-                parts.add(new MimePartValue("no_script", "1"));
-                parts.add(new MimePartValue("no_script_submit", "Nahr%C3%A9t+soubory"));
+                MimePart[] parts = new MimePart[3];
+                parts[0] = new MimePartFile("upfile_0");
+                parts[1] = new MimePartValue("no_script", "1");
+                parts[2] = new MimePartValue("no_script_submit", "Nahr%C3%A9t+soubory");
 
                 setMessage("Uploading");
-                startUpload(url, parts.toArray(new MimePart[0]));
+                startUpload(url, parts);
             }
 
             public void onFailed(String error) {

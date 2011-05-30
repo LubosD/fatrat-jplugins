@@ -47,7 +47,7 @@ public class FileserveExtractor extends ExtractorPlugin {
         while (m.find())
             rv.add("http://www.fileserve.com" + m.group(1));
 
-        finishedExtraction( (String[]) rv.toArray() );
+        finishedExtraction( rv.toArray(new String[0]) );
     }
 
 }

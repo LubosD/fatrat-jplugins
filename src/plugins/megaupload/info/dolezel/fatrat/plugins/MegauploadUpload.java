@@ -58,12 +58,12 @@ public class MegauploadUpload extends UploadPlugin {
                 String url = "http://www"+servers[sid]+".megaupload.com/upload_done.php"
                         + "?UPLOAD_IDENTIFIER="+ulId+"&s="+fileSize;
 
-                List<MimePart> parts = new ArrayList<MimePart>(2);
-                parts.add(new MimePartFile("Filedata"));
-                parts.add(new MimePartValue("message", file.getName()));
+                MimePart[] parts = new MimePart[2];
+                parts[0] = new MimePartFile("Filedata");
+                parts[1] = new MimePartValue("message", file.getName());
 
                 setMessage("Uploading");
-                startUpload(url, parts.toArray(new MimePart[0]));
+                startUpload(url, parts);
             }
 
             public void onFailed(String error) {
