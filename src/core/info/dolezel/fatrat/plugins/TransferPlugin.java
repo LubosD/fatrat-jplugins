@@ -60,6 +60,19 @@ public abstract class TransferPlugin extends Plugin {
      * Puts a message into the transfer log
      */
     protected native void logMessage(String msg);
+    
+    /**
+     * Set a transfer-specific variable.
+     * The value is preserved between application restarts.
+     */
+    protected native void setPersistentVariable(String key, Object value);
+    
+    /**
+     * Gets a transfer specific variable.
+     * @param key
+     * @return Value assigned or null.
+     */
+    protected native Object getPersistentVariable(String key);
 
     /**
      * An equivalent of setMessage(error), setState(State.Failed)
