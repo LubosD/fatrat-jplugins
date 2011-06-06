@@ -21,13 +21,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
+import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import info.dolezel.fatrat.plugins.listeners.ReCaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Extend this class to create a new download plugin.
  * @author lubos
  */
 public abstract class DownloadPlugin extends TransferPlugin {
+    
+    private static final Pattern reImageCode = Pattern.compile("challenge : '([^']+)");
 
     /**
      * This method will be called when a download is to be started.
@@ -79,6 +88,37 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param cb Callback with the result
      */
     protected native void solveCaptcha(String url, CaptchaListener cb);
+    
+    protected void solveReCaptcha(String code, final ReCaptchaListener cl) {
+        fetchPage("http://www.google.com/recaptcha/api/challenge?k="+code+"&ajax=1", new PageFetchListener() {
+
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                CharBuffer cb = charsetUtf8.decode(buf);
+                final Matcher m = reImageCode.matcher(cb);
+
+                if (!m.find()) {
+                    setFailed("Failed to find the captcha image code");
+                    return;
+                }
+
+                solveCaptcha("http://www.google.com/recaptcha/api/image?c="+m.group(1), new CaptchaListener() {
+
+                    public void onFailed() {
+                        cl.onFailed();
+                    }
+
+                    public void onSolved(String text) {
+                        cl.onSolved(text, m.group(1));
+                    }
+                });
+            }
+
+            public void onFailed(String error) {
+                setFailed(error);
+            }
+            
+        });
+    }
 
     /**
      * Give FatRat a hint on the real file name, if it cannot be properly deduced from the URL

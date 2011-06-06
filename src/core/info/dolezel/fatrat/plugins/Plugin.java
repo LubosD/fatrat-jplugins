@@ -22,6 +22,7 @@ package info.dolezel.fatrat.plugins;
 
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  *
@@ -36,5 +37,13 @@ public abstract class Plugin {
      * @param cb A callback object where you'll receive the data
      * @param postData Optional data to be sent using the POST method
      */
-	protected native void fetchPage(String url, PageFetchListener cb, String postData);
+	protected void fetchPage(String url, PageFetchListener cb) {
+        fetchPage(url, cb, null, null);
+    }
+    
+    protected void fetchPage(String url, PageFetchListener cb, String postData) {
+        fetchPage(url, cb, postData, null);
+    }
+    
+    protected native void fetchPage(String url, PageFetchListener cb, String postData, Map<String,String> headers);
 }
