@@ -1,0 +1,4 @@
+<dialog title="Uloz.to account settings (optional)">
+    <text id="ulozto/user" title="User" />
+    <password id="ulozto/password" title="Password" />
+</dialog>

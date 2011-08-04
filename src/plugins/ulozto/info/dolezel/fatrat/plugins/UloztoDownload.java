@@ -20,8 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.annotations.ConfigDialog;
 import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
+import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import info.dolezel.fatrat.plugins.util.PostQuery;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
@@ -33,19 +36,24 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  *
  * @author lubos
  */
-@DownloadPluginInfo(regexp = "http://(www.)?uloz\\.to/(live/)?\\d+/.+", name = "Uloz.to FREE download", forceSingleTransfer = false, truncIncomplete = false)
+@DownloadPluginInfo(regexp = "http://(www.)?uloz\\.to/(live/)?\\d+/.+", name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
+@ConfigDialog("ulozto.xml")
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
     static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
     static final Pattern reFileName = Pattern.compile("<h2 class=\"nadpis\" style=\"[^\"]+\"><a href=\"[^\"]+\">([^\"]+)</a></h2>");
+    static final Pattern rePremiumLink = Pattern.compile("href=\"([^\"]+)\" class=\"linkVip\"");
 
     static RememberedCaptcha rememberedCaptcha;
+    
+    boolean loggedIn = false;
 
     @Override
     public void processLink(String link) {
@@ -54,6 +62,11 @@ public class UloztoDownload extends DownloadPlugin {
             link = link.replace("/live/", "/");
         if (link.startsWith("http://uloz.to"))
             link = link.replace("http://uloz.to", "http://www.uloz.to");
+        
+        if (!logIn(link))
+            return;
+        
+        final String downloadLink = link; // I can't make 'link' final
 
         fetchPage(link, new PageFetchListener() {
 
@@ -69,10 +82,30 @@ public class UloztoDownload extends DownloadPlugin {
                     }
 
                     CharBuffer cb = charsetUtf8.decode(buf);
+                    
+                    if (cb.toString().contains("?disclaimer=1")) {
+                        processLink(downloadLink + "?disclaimer=1");
+                        return;
+                    }
+                    
                     final Matcher m = reImage.matcher(cb);
                     final Matcher mAction = reAction.matcher(cb);
                     Matcher mName = reFileName.matcher(cb);
+                    Matcher mPremium = rePremiumLink.matcher(cb);
 
+                    if (mPremium.find()) {
+                        String url = mPremium.group(1);
+                        if (url.startsWith("/kredit"))
+                            setMessage("Credit depleted, using FREE download");
+                        else {
+                            setMessage("Using premium download");
+                            startDownload(url);
+                            return;
+                        }
+                    } else if (loggedIn)
+                        setMessage("Login failed, using FREE download");
+                    if (mName.find())
+                        reportFileName(mName.group(1));
                     if (!m.find()) {
                         setFailed("Failed to find the captcha code");
                         return;
@@ -81,8 +114,6 @@ public class UloztoDownload extends DownloadPlugin {
                         setFailed("Failed to find the form action");
                         return;
                     }
-                    if (mName.find())
-                        reportFileName(mName.group(1));
 
                     final String captchaUrl = m.group(1);
                     UloztoDownload.this.mySolveCaptcha(captchaUrl, new CachedCaptchaListener(m.group(2)) {
@@ -211,6 +242,33 @@ public class UloztoDownload extends DownloadPlugin {
         md.update(data);
         md5hash = md.digest();
         return md5hash;
+    }
+
+    private boolean logIn(final String link) {
+        if (loggedIn)
+            return true;
+        
+        String user = (String) Settings.getValue("ulozto/user", "");
+        String password = (String) Settings.getValue("ulozto/password", "");
+        
+        if ("".equals(user))
+            return true;
+        
+        this.fetchPage("http://www.uloz.to/?do=authForm-submit", new PageFetchListener() {
+
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                loggedIn = true;
+                processLink(link);
+            }
+
+            public void onFailed(String error) {
+                setFailed(error);
+            }
+        }, new PostQuery().add("username", user).add("password", password).add("login", "Přihlásit").toString(),
+            Collections.singletonMap("Referer", "http://www.uloz.to/")
+        );
+        
+        return false;
     }
 
     private static class RememberedCaptcha {

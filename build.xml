@@ -34,6 +34,7 @@
 	
 	<target name="compile-ulozto" depends="jar-core">
 			<mkdir dir="${build}/plugins/ulozto"/>
+			<copy file="${src}/plugins/ulozto/ulozto.xml" todir="${build}/plugins/ulozto"/>
 			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" />
 	</target>
 	
