@@ -21,6 +21,7 @@
 	<path id="classpath">  
 		<pathelement location="${dist}/fatrat-jplugins.jar"/> 
 		<pathelement location="${lib}/commons-lang-2.6.jar"/> 
+		<pathelement location="${lib}/commons-codec-1.5.jar"/> 
 	</path> 
 
 	<target name="default" depends="jar">
@@ -34,6 +35,11 @@
 	<target name="compile-ulozto" depends="jar-core">
 			<mkdir dir="${build}/plugins/ulozto"/>
 			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" />
+	</target>
+	
+	<target name="compile-hellshare" depends="jar-core">
+			<mkdir dir="${build}/plugins/hellshare"/>
+			<javac srcdir="${src}/plugins/hellshare" destdir="${build}/plugins/hellshare" classpathref="classpath" />
 	</target>
 	
 	<target name="compile-wupload" depends="jar-core">
@@ -89,7 +95,7 @@
 			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" />
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -200,7 +206,16 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload">
+	<target name="jar-hellshare" depends="compile-hellshare">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-hellshare.jar" basedir="${build}/plugins/hellshare" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare">
 	</target>
 	
 	<target name="clean">
