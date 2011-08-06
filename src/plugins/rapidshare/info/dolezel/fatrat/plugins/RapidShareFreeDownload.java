@@ -10,9 +10,19 @@ import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.extra.URLAcceptableFilter;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import info.dolezel.fatrat.plugins.util.FileUtils;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,13 +52,24 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
         this.myLink = link;
         
         setMessage("Calling the API");
-        fileID = Long.parseLong(m.group(1));
-        fileName = m.group(2);
+        fileID = Long.parseLong(m.group(2));
+        fileName = m.group(3);
         
-        fetchPage("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=" + fileID + "&filename=" + fileName,
-                new PageFetchListener() {
+        reportFileName(fileName);
+        
+        callAPI("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=" + fileID + "&filename=" + fileName);
+        
+    }
+    
+    void callAPI(String url) {
+        fetchPage(url, new PageFetchListener() {
 
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                if (headers.containsKey("location") && buf.capacity() == 0) {
+                    callAPI(headers.get("location"));
+                    return;
+                }
+                
                 CharBuffer cb = charsetUtf8.decode(buf);
                 String text = cb.toString();
                 
@@ -57,13 +78,8 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
                     if (mTime.find()) {
                         doWaiting(Integer.parseInt(mTime.group(1)));
                         return;
-                    } else {
-                        int pos = text.indexOf('\n');
-                        if (pos == -1)
-                            setFailed(text);
-                        else
-                            setFailed(text.substring(0, pos));
-                    }
+                    } else
+                        setFailed(firstLine(text));
                 } else if (text.startsWith("DL:")) {
                     String[] parts = text.split(",");
                     if (parts.length < 3) {
@@ -74,7 +90,7 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
                     String hostname = parts[0].substring(3);
                     String dlauth = parts[1];
                     
-                    String downloadUrl = "http://" + hostname + "/" + "/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid="
+                    String downloadUrl = "http://" + hostname + "/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid="
                             + fileID + "&filename=" + fileName + "&dlauth=" + dlauth;
                     
                     finalStep(downloadUrl, Integer.parseInt(parts[2]));
@@ -118,9 +134,28 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
             public void onSecondElapsed(int secondsLeft) {
                 if (secondsLeft > 0)
                     setMessage("Waiting: "+DownloadPlugin.formatTime(secondsLeft)+" left");
-                else
+                else {
                     startDownload(downloadUrl);
+                }
             }
         });
+    }
+    
+    static String firstLine(String text) {
+        int pos = text.indexOf('\n');
+        if (pos == -1)
+            return text;
+        else
+            return text.substring(0, pos);
+    }
+
+    @Override
+    public void finalCheck(String filePath) {
+        File file = new File(filePath);
+        if (file.length() < 1024) {
+            String line = FileUtils.fileReadLine(filePath);
+            if (line != null && line.startsWith("ERROR:"))
+                setFailed(line);
+        }
     }
 }
