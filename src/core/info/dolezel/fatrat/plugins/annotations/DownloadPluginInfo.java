@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 public @interface DownloadPluginInfo {
     /** A regexp for URLs this class supports */
-	String regexp();
+	String regexp() default "";
     /** Download type name to be shown to the user */
 	String name();
     /** Set to false if the server supports resume */

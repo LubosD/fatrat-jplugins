@@ -9,7 +9,6 @@ import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;

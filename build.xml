@@ -50,6 +50,7 @@
 	
 	<target name="compile-rapidshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/rapidshare"/>
+			<copy file="${src}/plugins/rapidshare/rapidshare.xml" todir="${build}/plugins/rapidshare"/>
 			<javac srcdir="${src}/plugins/rapidshare" destdir="${build}/plugins/rapidshare" classpathref="classpath" />
 	</target>
 	

@@ -50,6 +50,7 @@ public class UloztoDownload extends DownloadPlugin {
     static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
     static final Pattern reFileName = Pattern.compile("<h2 class=\"nadpis\" style=\"[^\"]+\"><a href=\"[^\"]+\">([^\"]+)</a></h2>");
     static final Pattern rePremiumLink = Pattern.compile("href=\"([^\"]+)\" class=\"linkVip\"");
+    static final Pattern rePremiumDataLeft = Pattern.compile("class=\"coins\" title=\"[^\"]+\">([^<]+)<");
 
     static RememberedCaptcha rememberedCaptcha;
     
@@ -98,7 +99,13 @@ public class UloztoDownload extends DownloadPlugin {
                         if (url.startsWith("/kredit"))
                             setMessage("Credit depleted, using FREE download");
                         else {
-                            setMessage("Using premium download");
+                            Matcher mData = rePremiumDataLeft.matcher(cb);
+                            String msg = "Using premium download";
+                            
+                            if (mData.find())
+                                msg += " ("+mData.group(1)+" left)";
+                            
+                            setMessage(msg);
                             startDownload(url);
                             return;
                         }
