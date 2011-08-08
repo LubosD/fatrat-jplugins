@@ -41,7 +41,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 /**
- *
+ * For internal use only.
  * @author lubos
  */
 public class NativeHelpers {

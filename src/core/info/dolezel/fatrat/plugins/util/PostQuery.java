@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * A helper class used to build POST url-encoded queries with key-value pairs.
  * @author lubos
  */
 public class PostQuery {

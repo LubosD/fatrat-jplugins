@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 /**
  * Extend this class to create a new download plugin.
+ * Do not forget to add a {@link info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo} annotation.
  * @author lubos
  */
 public abstract class DownloadPlugin extends TransferPlugin {
@@ -41,24 +42,30 @@ public abstract class DownloadPlugin extends TransferPlugin {
 
     /**
      * This method will be called when a download is to be started.
+     * This is the main method to be implemented in download extensions.
      */
     public abstract void processLink(String link);
 
     /**
      * Called from native code to notify the plugin that the download has failed either
-     * because of setState/setFailed called by the extension or because of an HTTP
+     * because of {@link #setState} or {@link #setFailed} called by the extension or because of an HTTP
      * failure encountered in the native code.
      *
      * Override this method only if you need it as a captcha caching hint.
      */
     public void onFailed() {}
     
+    /**
+     * Gives FatRat the URL to download the desired file.
+     * This is the last step in the whole procedure. Cookies from {@link #fetchPage} calls are automatically preserved.
+     * @param url URL to download, along with all other information needed.
+     */
     protected native void startDownload(DownloadUrl url);
 
     /**
      * Gives FatRat the URL to download the desired file.
-     * This is the last step in the whole procedure.
-     * @param url URL to download, all received cookies will be used automatically
+     * This is the last step in the whole procedure. Cookies from {@link #fetchPage} calls are automatically preserved.
+     * @param url URL to download.
      * @param referrer Optional HTTP Referer URL
      */
 	protected void startDownload(String url, String referrer, String userAgent, String fileName) {
@@ -81,9 +88,9 @@ public abstract class DownloadPlugin extends TransferPlugin {
     }
 
     /**
-     * FatRat will call back every second until the timer expires
-     * @param seconds Wait period
-     * @param cb Callback
+     * Start a timer. FatRat will call back every second until the timer expires.
+     * @param seconds The length of the timer in seconds.
+     * @param cb Callback listener.
      */
 	protected native void startWait(int seconds, WaitListener cb);
 
@@ -126,20 +133,22 @@ public abstract class DownloadPlugin extends TransferPlugin {
     }
 
     /**
-     * Give FatRat a hint on the real file name, if it cannot be properly deduced from the URL
+     * Give FatRat a hint on the real file name, if it cannot be properly deduced from the URL.
+     * This name is used only for display purposes, the on-disk file name is never based on this.
+     * The name given is used only until {@link #startDownload} is called.
      * @param name A file name
      */
     protected native void reportFileName(String name);
 
     /**
-     * Reimplement if you need to check e.g. for HTML files containing 'File not found' after you call startDownload()
+     * Reimplement if you need to check e.g. for HTML files containing 'File not found' after you call {@link #startDownload}
      * @param filePath The path where the file has been downloaded
      */
 	public void finalCheck(String filePath) {
 	}
 
     /**
-     * Formats the time in seconds into a user friendly String.
+     * Formats the time in seconds into a user friendly string.
      */
     public static String formatTime(int seconds) {
         StringBuilder result = new StringBuilder();

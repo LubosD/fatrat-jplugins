@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
- *
+ * A plugin that is used for link folder extraction.
  * @author lubos
  */
 public abstract class ExtractorPlugin extends TransferPlugin {
@@ -32,10 +32,12 @@ public abstract class ExtractorPlugin extends TransferPlugin {
      * Called by the application to extract all the links in the page.
      * @param url Original page URL
      * @param data Page contents
-     * @return A list of extracted links
      * @throws Exception
      */
     public abstract void extractList(String url, ByteBuffer data, Map<String,String> headers) throws Exception;
 
+    /**
+      * Report the result of plugin's work to the application.
+      */
     public native void finishedExtraction(String[] links);
 }

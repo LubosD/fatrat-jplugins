@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 /**
- *
+ * Do not subclass this class.
  * @author lubos
  */
 public abstract class TransferPlugin extends Plugin {
@@ -63,19 +63,20 @@ public abstract class TransferPlugin extends Plugin {
     
     /**
      * Set a transfer-specific variable.
-     * The value is preserved between application restarts.
+     * The value is preserved between application restarts. Use for resume information.
      */
     protected native void setPersistentVariable(String key, Object value);
     
     /**
      * Gets a transfer specific variable.
+     * The value is preserved between application restarts. Use for resume information.
      * @param key
      * @return Value assigned or null.
      */
     protected native Object getPersistentVariable(String key);
 
     /**
-     * An equivalent of setMessage(error), setState(State.Failed)
+     * A shorthand for calling <code>setMessage(error)</code> and <code>setState(State.Failed)</code>
      */
     protected void setFailed(String error) {
         setMessage(error);

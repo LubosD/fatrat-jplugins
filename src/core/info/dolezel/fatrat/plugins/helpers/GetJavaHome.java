@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins.helpers;
 
+/**
+  * For internal use only.
+  */
+
 public class GetJavaHome {
 	public static void main(String[] args) {
 		System.out.println(System.getProperties().getProperty("java.home", null));

@@ -36,7 +36,9 @@ public @interface ExtractorPluginInfo {
     /** Download (extractor) type name to be shown to the user */
 	String name();
 
-    /** Suggested transfer class */
+    /** Suggested transfer class name */
     String transferClassName() default "";
+
+    /** Suggested transfer class type (takes precedence over <code>transferClassName</code>) */
     Class transferClass() default Object.class;
 }

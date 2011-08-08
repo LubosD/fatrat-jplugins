@@ -25,22 +25,27 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- *
+ * Do not subclass this class.
  * @author lubos
  */
-public abstract class Plugin {
+public abstract class Plugin extends NativeObject {
     final Charset charsetUtf8 = Charset.forName("UTF-8");
 
     /**
      * Downloads the specified URL.
      * @param url The URL to be downloaded.
      * @param cb A callback object where you'll receive the data
-     * @param postData Optional data to be sent using the POST method
      */
 	protected void fetchPage(String url, PageFetchListener cb) {
         fetchPage(url, cb, null, null);
     }
     
+    /**
+     * Downloads the specified URL.
+     * @param url The URL to be downloaded.
+     * @param cb A callback object where you'll receive the data
+     * @param postData Optional data to be sent using the POST method
+     */
     protected void fetchPage(String url, PageFetchListener cb, String postData) {
         fetchPage(url, cb, postData, null);
     }

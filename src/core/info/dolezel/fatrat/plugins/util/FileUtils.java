@@ -15,6 +15,11 @@ import java.io.InputStreamReader;
  * @author lubos
  */
 public class FileUtils {
+
+    /**
+      * Returns the first line from the file.
+      * @return <code>null</code> if the operation failed for any reason.
+      */
     public static String fileReadLine(String file) {
         FileInputStream fis = null;
         BufferedReader br = null;

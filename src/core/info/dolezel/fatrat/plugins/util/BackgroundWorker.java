@@ -4,13 +4,14 @@
  */
 package info.dolezel.fatrat.plugins.util;
 
+import info.dolezel.fatrat.plugins.NativeObject;
 import java.util.concurrent.ExecutionException;
 
 /**
  * A helper classed used to perform lengthy tasks in a background thread.
- * Inspired by SwingWorker.
+ * Inspired by <code>SwingWorker</code>.
  */
-public abstract class BackgroundWorker<T, V> {
+public abstract class BackgroundWorker<T, V> extends NativeObject {
     
     /**
      * This method is executed in the background thread.
@@ -20,7 +21,7 @@ public abstract class BackgroundWorker<T, V> {
     public abstract T doInBackground() throws Exception;
     
     /**
-     * This method is executed in the main thread after doInBackground() returns.
+     * This method is executed in the main thread after {@link #doInBackground()} returns.
      */
     public abstract void done();
     
@@ -40,8 +41,8 @@ public abstract class BackgroundWorker<T, V> {
     /**
      * Blocks until the background thread finishes and returns the value returned
      * from that thread.
-     * @return The value returned from doInBackground()
-     * @throws ExecutionException Wraps any exception thrown from doInBackground()
+     * @return The value returned from {@link #doInBackground()}
+     * @throws ExecutionException Wraps any exception thrown from {@link #doInBackground()}
      */
     public native T get() throws ExecutionException;
     

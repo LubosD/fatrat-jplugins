@@ -83,7 +83,7 @@ public abstract class UploadPlugin extends TransferPlugin {
     }
 
     /**
-     * Call to initiate the upload process.
+     * Initiates the upload process.
      * @param url URL where the data should be HTTP POSTed
      * @param mimeParts MIME parts of the request
      */
@@ -92,7 +92,8 @@ public abstract class UploadPlugin extends TransferPlugin {
     }
     
     /**
-     * Call to initiate the upload process.
+     * Initiates a partial upload process.
+     * The transfer will be marked as Completed when the last byte from the file is successfully uploaded.
      * @param url URL where the data should be HTTP POSTed
      * @param mimeParts MIME parts of the request
      * @param offset Where from in the file start uploading
