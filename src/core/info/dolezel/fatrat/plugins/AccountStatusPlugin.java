@@ -25,10 +25,15 @@ package info.dolezel.fatrat.plugins;
  * @author lubos
  */
 public abstract class AccountStatusPlugin extends Plugin {
+    
+    /**
+     * Account state. It is up to the plugin to judge the state, there are no rules set.
+     */
     static public enum AccountState {
-        AccountOK,
-        AccountWarn,
-        AccountBad
+        AccountGood,
+        AccountWarning,
+        AccountBad,
+        AccountError
     }
     
     /**
@@ -41,7 +46,52 @@ public abstract class AccountStatusPlugin extends Plugin {
     /**
      * Reports account balance to the user.
      * @param state Used for a graphical icon.
-     * @param balance A string that will be displayed to the user.
+     * @param balance A string that will be displayed to the user. Can be <code>null</code> if state is AccountError.
      */
     protected native void reportAccountBalance(AccountState state, String balance);
+    
+    protected static long parseSize(String str) {
+        String[] p = str.trim().replaceAll(" {2,}", " ").split(" ");
+        double d;
+        long mul = 0;
+        
+        if (p.length != 2)
+            return 0;
+        
+        try {
+            d = Double.parseDouble(p[0].replace(',', '.'));
+        } catch (Exception e) {
+            return 0;
+        }
+        
+        p[1] = p[1].toLowerCase();
+        
+        if (p[1].equals("b"))
+            mul = 1;
+        else if (p[1].equals("kb"))
+            mul = 1024;
+        else if (p[1].equals("mb"))
+            mul = 1024*1024;
+        else if (p[1].equals("gb"))
+            mul = 1024*1024*1024;
+        else if (p[1].equals("tb"))
+            mul = 1024L*1024L*1024L*1024L;
+        else if (p[1].equals("pb"))
+            mul = 1024L*1024L*1024L*1024L*1024L;
+        
+        return (long) (d*mul);
+    }
+    
+    protected static AccountState adviseState(long bytesLeft) {
+        if (bytesLeft < 512L*1024L*1024L)
+            return AccountState.AccountBad;
+        else if (bytesLeft < 2L*1024L*1024L*1024L)
+            return AccountState.AccountWarning;
+        else
+            return AccountState.AccountGood;
+    }
+    
+    protected void setFailed(String error) {
+        reportAccountBalance(AccountState.AccountBad, error);
+    }
 }

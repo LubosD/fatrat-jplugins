@@ -50,11 +50,4 @@ public abstract class BackgroundWorker<T, V> extends NativeObject {
      * Starts the background task.
      */
     public native void execute();
-
-    @Override
-    protected void finalize() throws Throwable {
-        disposeNative();
-    }
-
-    private native void disposeNative();
 }
