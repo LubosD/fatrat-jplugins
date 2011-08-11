@@ -11,18 +11,10 @@ import info.dolezel.fatrat.plugins.extra.URLAcceptableFilter;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
 import info.dolezel.fatrat.plugins.util.FileUtils;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@DownloadPluginInfo(name = "RapidShare.com FREE download")
+@DownloadPluginInfo(name = "RapidShare.com FREE download", regexp = "http://(www\\.)?rapidshare\\.com/files/\\d+/.+")
 @ConfigDialog("rapidshare.xml")
 public class RapidShareFreeDownload extends DownloadPlugin implements URLAcceptableFilter {
     static final Pattern reLink = Pattern.compile("http://(www\\.)?rapidshare\\.com/files/(\\d+)/(.+)");
@@ -107,8 +99,8 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
     public int acceptable(String url) {
         Matcher m = reLink.matcher(url);
         if (m.matches()) {
-            int accType = (Integer) Settings.getValue("rapidshare/account", new Integer(0));
-            if (accType == 2)
+            String user = (String) Settings.getValue("rapidshare/username", "");
+            if (!"".equals(user))
                 return 1; // user has an account -> let CurlDownload handle this
             else
                 return 3; // no account, it's up to us
@@ -135,6 +127,7 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
                 if (secondsLeft > 0)
                     setMessage("Waiting: "+DownloadPlugin.formatTime(secondsLeft)+" left");
                 else {
+                    setMessage("Free download");
                     startDownload(downloadUrl);
                 }
             }

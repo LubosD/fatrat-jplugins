@@ -56,12 +56,12 @@ public abstract class AccountStatusPlugin extends Plugin {
         long mul = 0;
         
         if (p.length != 2)
-            return 0;
+            return -1;
         
         try {
             d = Double.parseDouble(p[0].replace(',', '.'));
         } catch (Exception e) {
-            return 0;
+            return -1;
         }
         
         p[1] = p[1].toLowerCase();
@@ -75,17 +75,19 @@ public abstract class AccountStatusPlugin extends Plugin {
         else if (p[1].equals("gb"))
             mul = 1024*1024*1024;
         else if (p[1].equals("tb"))
-            mul = 1024L*1024L*1024L*1024L;
+            mul = 1024l*1024l*1024l*1024l;
         else if (p[1].equals("pb"))
-            mul = 1024L*1024L*1024L*1024L*1024L;
+            mul = 1024l*1024l*1024l*1024l*1024l;
         
         return (long) (d*mul);
     }
     
     protected static AccountState adviseState(long bytesLeft) {
-        if (bytesLeft < 512L*1024L*1024L)
+        if (bytesLeft < 0)
+            return AccountState.AccountGood;
+        else if (bytesLeft < 512l*1024l*1024l)
             return AccountState.AccountBad;
-        else if (bytesLeft < 2L*1024L*1024L*1024L)
+        else if (bytesLeft < 2l*1024l*1024l*1024l)
             return AccountState.AccountWarning;
         else
             return AccountState.AccountGood;

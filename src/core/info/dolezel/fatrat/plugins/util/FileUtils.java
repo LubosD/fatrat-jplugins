@@ -42,4 +42,34 @@ public class FileUtils {
             }
         }
     }
+    
+    public static String fileReadAll(String file) {
+        FileInputStream fis = null;
+        DataInputStream dis = null;
+        InputStreamReader isr = null;
+        
+        try {
+            fis = new FileInputStream(file);
+            dis = new DataInputStream(fis);
+            isr = new InputStreamReader(dis);
+            
+            StringBuilder sb = new StringBuilder();
+            char[] c = new char[4096];
+            
+            while (true) {
+                int r = isr.read(c);
+                if (r < 0)
+                    return sb.toString();
+                sb.append(c, 0, r);
+            }
+            
+        } catch (IOException ex) {
+            return null;
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
 }
