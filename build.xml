@@ -22,82 +22,97 @@
 		<pathelement location="${dist}/fatrat-jplugins.jar"/> 
 		<pathelement location="${lib}/commons-lang-2.6.jar"/> 
 		<pathelement location="${lib}/commons-codec-1.5.jar"/> 
-	</path> 
+	</path>
+	
+	<path id="classpath_ws">  
+		<pathelement location="${lib}/servlet-api-2.5.jar"/>
+		<pathelement location="${lib}/mailapi.jar"/>
+	</path>
 
 	<target name="default" depends="jar">
 	</target>
 	
 	<target name="compile-core">
 			<mkdir dir="${build}/core"/>
-			<javac srcdir="${src}/core" destdir="${build}/core"/>
+			<javac srcdir="${src}/core" destdir="${build}/core" source="1.6" target="1.6"/>
+	</target>
+	
+	<target name="compile-ws">
+			<mkdir dir="${build}/ws"/>
+			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-ulozto" depends="jar-core">
 			<mkdir dir="${build}/plugins/ulozto"/>
 			<copy file="${src}/plugins/ulozto/ulozto.xml" todir="${build}/plugins/ulozto"/>
-			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-hellshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/hellshare"/>
-			<javac srcdir="${src}/plugins/hellshare" destdir="${build}/plugins/hellshare" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/hellshare" destdir="${build}/plugins/hellshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-wupload" depends="jar-core">
 			<mkdir dir="${build}/plugins/wupload"/>
-			<javac srcdir="${src}/plugins/wupload" destdir="${build}/plugins/wupload" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/wupload" destdir="${build}/plugins/wupload" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-rapidshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/rapidshare"/>
 			<copy file="${src}/plugins/rapidshare/rapidshare.xml" todir="${build}/plugins/rapidshare"/>
-			<javac srcdir="${src}/plugins/rapidshare" destdir="${build}/plugins/rapidshare" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/rapidshare" destdir="${build}/plugins/rapidshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-hotfile" depends="jar-core">
 			<mkdir dir="${build}/plugins/hotfile"/>
-			<javac srcdir="${src}/plugins/hotfile" destdir="${build}/plugins/hotfile" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/hotfile" destdir="${build}/plugins/hotfile" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-fileserve" depends="jar-core">
 			<mkdir dir="${build}/plugins/fileserve"/>
-			<javac srcdir="${src}/plugins/fileserve" destdir="${build}/plugins/fileserve" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/fileserve" destdir="${build}/plugins/fileserve" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-megaupload" depends="jar-core">
 			<mkdir dir="${build}/plugins/megaupload"/>
-			<javac srcdir="${src}/plugins/megaupload" destdir="${build}/plugins/megaupload" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/megaupload" destdir="${build}/plugins/megaupload" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-edisk" depends="jar-core">
 			<mkdir dir="${build}/plugins/edisk"/>
-			<javac srcdir="${src}/plugins/edisk" destdir="${build}/plugins/edisk" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/edisk" destdir="${build}/plugins/edisk" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-netload" depends="jar-core">
 			<mkdir dir="${build}/plugins/netload"/>
-			<javac srcdir="${src}/plugins/netload" destdir="${build}/plugins/netload" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/netload" destdir="${build}/plugins/netload" classpathref="classpath" source="1.6" target="1.6"/>
+	</target>
+	
+	<target name="compile-jdproto" depends="jar-core">
+			<mkdir dir="${build}/plugins/jdproto"/>
+			<javac srcdir="${src}/plugins/jdproto" destdir="${build}/plugins/jdproto" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-sharerapid" depends="jar-core">
 			<mkdir dir="${build}/plugins/sharerapid"/>
 			<copy file="${src}/plugins/sharerapid/share-rapid.xml" todir="${build}/plugins/sharerapid"/>
-			<javac srcdir="${src}/plugins/sharerapid" destdir="${build}/plugins/sharerapid" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/sharerapid" destdir="${build}/plugins/sharerapid" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-youtube" depends="jar-core">
 			<mkdir dir="${build}/plugins/youtube"/>
 			<copy file="${src}/plugins/youtube/youtube.xml" todir="${build}/plugins/youtube"/>
-			<javac srcdir="${src}/plugins/youtube" destdir="${build}/plugins/youtube" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/youtube" destdir="${build}/plugins/youtube" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-czshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/czshare"/>
 			<copy file="${src}/plugins/czshare/czshare.xml" todir="${build}/plugins/czshare"/>
-			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" />
+			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -105,6 +120,7 @@
 			<jar destfile="${dist}/fatrat-jplugins.jar" basedir="${build}/core" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Core API"/>
 			</manifest>
 		</jar>
 	</target>
@@ -114,6 +130,7 @@
 			<jar destfile="${dist}/fatrat-ulozto.jar" basedir="${build}/plugins/ulozto" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free and premium downloads from Uloz.to"/>
 			</manifest>
 		</jar>
 	</target>
@@ -123,6 +140,7 @@
 			<jar destfile="${dist}/fatrat-hotfile.jar" basedir="${build}/plugins/hotfile" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from HotFile.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -132,6 +150,7 @@
 			<jar destfile="${dist}/fatrat-fileserve.jar" basedir="${build}/plugins/fileserve" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from FileServe.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -141,6 +160,7 @@
 			<jar destfile="${dist}/fatrat-megaupload.jar" basedir="${build}/plugins/megaupload" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from MegaUpload.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -150,6 +170,7 @@
 			<jar destfile="${dist}/fatrat-edisk.jar" basedir="${build}/plugins/edisk" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from edisk.cz/sk"/>
 			</manifest>
 		</jar>
 	</target>
@@ -159,6 +180,7 @@
 			<jar destfile="${dist}/fatrat-netload.jar" basedir="${build}/plugins/netload" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="---"/>
 			</manifest>
 		</jar>
 	</target>
@@ -168,6 +190,7 @@
 			<jar destfile="${dist}/fatrat-sharerapid.jar" basedir="${build}/plugins/sharerapid" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free and premium downloads from Share-rapid.com, Sharerapid.cz"/>
 			</manifest>
 		</jar>
 	</target>
@@ -177,6 +200,7 @@
 			<jar destfile="${dist}/fatrat-youtube.jar" basedir="${build}/plugins/youtube" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for video downloads from YouTube.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -186,6 +210,7 @@
 			<jar destfile="${dist}/fatrat-czshare.jar" basedir="${build}/plugins/czshare" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for PREMIUM downloads from CZshare.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -195,6 +220,7 @@
 			<jar destfile="${dist}/fatrat-rapidshare.jar" basedir="${build}/plugins/rapidshare" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for PREMIUM downloads from CZshare.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -204,6 +230,7 @@
 			<jar destfile="${dist}/fatrat-wupload.jar" basedir="${build}/plugins/wupload" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from Wupload.com"/>
 			</manifest>
 		</jar>
 	</target>
@@ -213,16 +240,43 @@
 			<jar destfile="${dist}/fatrat-hellshare.jar" basedir="${build}/plugins/hellshare" level="9">
 			<manifest>
 				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="---"/>
 			</manifest>
 		</jar>
 	</target>
 	
-	<target name="jar" depends="jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare">
+	<target name="jar-jdproto" depends="compile-jdproto">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-jdproto.jar" basedir="${build}/plugins/jdproto" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="jd:// and jdlist:// URI support"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="jar-ws">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-ws.jar" basedir="${build}/ws" level="9">
+		</jar>
+	</target>
+	
+	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws">
 	</target>
 	
 	<target name="clean">
 			<delete dir="${dist}" />
 			<delete dir="${build}" />
+	</target>
+	
+	<target name="javadoc">
+		<javadoc packagenames="info.dolezel.fatrat.*"
+		   sourcepath="src/core"
+           defaultexcludes="yes"
+           destdir="docs/"
+           use="true"
+           windowtitle="FatRat Extension API">
+	   </javadoc>
 	</target>
 	
 	<!--<import file="nbproject/build-impl.xml"/>-->

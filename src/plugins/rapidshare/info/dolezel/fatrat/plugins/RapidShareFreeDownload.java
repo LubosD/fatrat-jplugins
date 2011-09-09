@@ -22,10 +22,10 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@DownloadPluginInfo(name = "RapidShare.com FREE download", regexp = "http://(www\\.)?rapidshare\\.com/files/\\d+/.+")
+@DownloadPluginInfo(name = "RapidShare.com FREE download", regexp = "https?://(www\\.)?rapidshare\\.com/files/\\d+/.+")
 @ConfigDialog("rapidshare.xml")
 public class RapidShareFreeDownload extends DownloadPlugin implements URLAcceptableFilter {
-    static final Pattern reLink = Pattern.compile("http://(www\\.)?rapidshare\\.com/files/(\\d+)/(.+)");
+    static final Pattern reLink = Pattern.compile("https?://(www\\.)?rapidshare\\.com/files/(\\d+)/(.+)");
     static final Pattern reWaitTime = Pattern.compile("(\\d+) sec");
     
     String myLink;
@@ -49,7 +49,7 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
         
         reportFileName(fileName);
         
-        callAPI("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download_v1&fileid=" + fileID + "&filename=" + fileName);
+        callAPI("http://api.rapidshare.com/cgi-bin/rsapi.cgi?sub=download&fileid=" + fileID + "&filename=" + fileName);
         
     }
     
@@ -82,7 +82,7 @@ public class RapidShareFreeDownload extends DownloadPlugin implements URLAccepta
                     String hostname = parts[0].substring(3);
                     String dlauth = parts[1];
                     
-                    String downloadUrl = "http://" + hostname + "/cgi-bin/rsapi.cgi?sub=download_v1&editparentlocation=0&bin=1&fileid="
+                    String downloadUrl = "http://" + hostname + "/cgi-bin/rsapi.cgi?sub=download&editparentlocation=0&bin=1&fileid="
                             + fileID + "&filename=" + fileName + "&dlauth=" + dlauth;
                     
                     finalStep(downloadUrl, Integer.parseInt(parts[2]));
