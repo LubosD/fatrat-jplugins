@@ -63,31 +63,34 @@ public class NativeHelpers {
         String[] jars = System.getProperty("java.class.path").split(":");
 
         for (String jar : jars) {
-            getPackageVersion(jar, rv);
+            File fo = new File(jar);
+            String name;
+            
+            if (!fo.exists())
+                continue;
+            
+            name = fo.getName();
+            
+            if (name.startsWith("fatrat-") && !name.equals("fatrat-jplugins.jar"))
+                getPackageVersion(fo, rv);
         }
         for (URL url : loader.getURLs()) {
             String jarPath = url.getPath().replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
-            getPackageVersion(jarPath, rv);
+            getPackageVersion(new File(jarPath), rv);
         }
 
         return rv;
     }
 
-    private static void getPackageVersion(String jar, Map<String,String> rv) throws IOException {
-        File fo = new File(jar);
-
+    private static void getPackageVersion(File fo, Map<String,String> rv) throws IOException {
         if (!fo.exists())
             return;
-
+        
         JarFile file = new JarFile(fo);
         Manifest manifest = file.getManifest();
         Attributes attr = manifest.getMainAttributes();
 
-        int ind = jar.lastIndexOf('/');
-        if (ind != -1)
-            jar = jar.substring(ind+1);
-
-        rv.put(jar, attr.getValue("Implementation-Version"));
+        rv.put(fo.getName(), attr.getValue("Implementation-Version"));
     }
 
     public static void loadPackage(String path) throws Exception {

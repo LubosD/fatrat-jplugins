@@ -27,6 +27,7 @@
 	<path id="classpath_ws">  
 		<pathelement location="${lib}/servlet-api-2.5.jar"/>
 		<pathelement location="${lib}/mailapi.jar"/>
+		<pathelement location="${lib}/commons-io-2.0.1.jar"/>
 	</path>
 
 	<target name="default" depends="jar">
