@@ -21,13 +21,21 @@
 	<path id="classpath">  
 		<pathelement location="${dist}/fatrat-jplugins.jar"/> 
 		<pathelement location="${lib}/commons-lang-2.6.jar"/> 
-		<pathelement location="${lib}/commons-codec-1.5.jar"/> 
+		<pathelement location="${lib}/commons-codec.jar"/> 
 	</path>
 	
 	<path id="classpath_ws">  
 		<pathelement location="${lib}/servlet-api-2.5.jar"/>
 		<pathelement location="${lib}/mailapi.jar"/>
-		<pathelement location="${lib}/commons-io-2.0.1.jar"/>
+		<pathelement location="${lib}/commons-io.jar"/>
+	</path>
+	
+	<path id="classpath_applet">
+		<pathelement location="${lib}/xmlrpc-client.jar"/>
+		<pathelement location="${lib}/xmlrpc-common.jar"/>
+		<pathelement location="${lib}/ws-commons-util.jar"/>
+		<pathelement location="${lib}/commons-io.jar"/>
+		<pathelement location="${lib}/commons-codec.jar"/> 
 	</path>
 
 	<target name="default" depends="jar">
@@ -41,6 +49,11 @@
 	<target name="compile-ws">
 			<mkdir dir="${build}/ws"/>
 			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"/>
+	</target>
+	
+	<target name="compile-applet">
+			<mkdir dir="${build}/applet"/>
+			<javac srcdir="${src}/applet" destdir="${build}/applet" classpathref="classpath_applet" source="1.6" target="1.6" debug="true" />
 	</target>
 	
 	<target name="compile-ulozto" depends="jar-core">
@@ -113,7 +126,7 @@
 			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws,compile-applet">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -256,13 +269,23 @@
 		</jar>
 	</target>
 	
+	<target name="jar-applet" depends="compile-applet">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-applet.jar" basedir="${build}/applet" level="9">
+			<manifest>
+				<attribute name="Class-Path" value="xmlrpc-client.jar xmlrpc-common.jar ws-commons-util.jar commons-logging.jar commons-io.jar commons-codec.jar"/>
+				<attribute name="Main-Class" value="info.dolezel.fatrat.applet.FatRatApplet" />
+			</manifest>
+		</jar>
+	</target>
+	
 	<target name="jar-ws">
 			<mkdir dir="${dist}"/>
 			<jar destfile="${dist}/fatrat-ws.jar" basedir="${build}/ws" level="9">
 		</jar>
 	</target>
 	
-	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws">
+	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws,jar-applet">
 	</target>
 	
 	<target name="clean">
@@ -343,3 +366,4 @@
 
 	-->
 </project>
+
