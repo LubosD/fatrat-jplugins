@@ -90,7 +90,7 @@ public class TransferModel implements TableModel {
                 Object[] speeds = (Object[]) map.get("speeds");
                 int down = (Integer) speeds[0];
                 
-                if (down > 0 || isActive)
+                if (down > 0 || (isActive && primaryMode.equals("Download")))
                     text = Util.formatSize(down) + "/s";
                 
                 return text;
@@ -153,15 +153,15 @@ public class TransferModel implements TableModel {
         
         if (lastSize > 0) {
             if (data.length > 0)
-                ev1 = new TableModelEvent(this, 0, Math.min(data.length, lastSize)-1);
+                ev1 = new TableModelEvent(this, 0, Math.min(data.length, lastSize));
 
-            if (data.length != lastSize) {
+            /*if (data.length != lastSize) {
                 if (data.length > lastSize)
                     ev2 = new TableModelEvent(this, lastSize-1, data.length-1, TableModelEvent.INSERT);
-                //else
-                //    ev2 = new TableModelEvent(this, data.length-1, lastSize-1, TableModelEvent.DELETE);
+                else
+                    ev1 = new TableModelEvent(this, 0, Math.min(data.length, lastSize)-1);
                 lastSize = data.length;
-            }
+            }*/
         } else
             ev1 = new TableModelEvent(this);
         

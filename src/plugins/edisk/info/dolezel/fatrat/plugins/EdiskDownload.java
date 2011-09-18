@@ -25,6 +25,7 @@ import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,12 +49,33 @@ public class EdiskDownload extends DownloadPlugin {
             setFailed("Invalid URL");
             return;
         }
+        
+        fetchPage(link, new PageFetchListener() {
 
+            @Override
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                step2(link);
+            }
+
+            @Override
+            public void onFailed(String error) {
+                setFailed(error);
+            }
+        });
+    }
+
+    private void step2(final String link) {
+        //String waitingPage = "http://www.edisk.cz/stahni-pomalu/"+urlEnd;
+        Matcher mUrl = reUrl.matcher(link);
+        String waitingPage = link.replace("/stahni/", "/stahni-pomalu/");
+        
+        mUrl.find();
+        
         final String urlEnd = mUrl.group(2);
-        String waitingPage = "http://www.edisk.cz/stahni-pomalu/"+urlEnd;
         
         fetchPage(waitingPage, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher m = reWaitTime.matcher(cb);
@@ -65,6 +87,7 @@ public class EdiskDownload extends DownloadPlugin {
                 if (!m.find()) {
                     startWait(60, new WaitListener() {
 
+                        @Override
                         public void onSecondElapsed(int secondsLeft) {
                             if (secondsLeft > 0)
                                 setMessage("Limit probably exceeded, "+DownloadPlugin.formatTime(secondsLeft)+" until next attempt");
@@ -76,6 +99,7 @@ public class EdiskDownload extends DownloadPlugin {
                     int secs = Integer.parseInt(m.group(1));
                     startWait(secs, new WaitListener() {
 
+                        @Override
                         public void onSecondElapsed(int secondsLeft) {
                             if (secondsLeft > 0)
                                 setMessage("Waiting: "+DownloadPlugin.formatTime(secondsLeft)+" left");
@@ -85,11 +109,14 @@ public class EdiskDownload extends DownloadPlugin {
 
                                 fetchPage(postPage, new PageFetchListener() {
 
+                                    @Override
                                     public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                                         CharBuffer cb = charsetUtf8.decode(buf);
+                                        setMessage("Downloading");
                                         startDownload(cb.toString());
                                     }
 
+                                    @Override
                                     public void onFailed(String error) {
                                         setFailed(error);
                                     }
@@ -101,11 +128,12 @@ public class EdiskDownload extends DownloadPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
 
-        }, null);
+        }, null, Collections.singletonMap("Referer", link));
     }
 
 }

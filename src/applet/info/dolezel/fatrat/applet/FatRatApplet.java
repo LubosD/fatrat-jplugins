@@ -11,7 +11,6 @@
 package info.dolezel.fatrat.applet;
 
 import info.dolezel.fatrat.applet.components.SpeedGraph;
-import info.dolezel.fatrat.applet.menus.TransferPopupMenu;
 import info.dolezel.fatrat.applet.models.QueueModel;
 import info.dolezel.fatrat.applet.models.TransferModel;
 import info.dolezel.fatrat.applet.models.data.NameAndState;
@@ -59,7 +58,7 @@ import org.apache.commons.io.IOUtils;
  * @author lubos
  */
 public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
-    static private final int[] refreshIntervals = {2, 5, 15, 30};
+    static public final int[] refreshIntervals = {2, 5, 15, 30};
     
     boolean runAsStandalone = false;
     URL standaloneVirtualURL;
@@ -1097,6 +1096,21 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
             conn.setRequestProperty("Authorization", "Basic " + auth);
         }
+    }
+
+    public AppletSettings getSettings() {
+        return settings;
+    }
+
+    public XmlRpcClient getClient() {
+        return client;
+    }
+    
+    public Map<String,Object> getCurrentTransfer() {
+        int sel = transfers.getSelectedRow();
+        if (sel < 0)
+            return null;
+        return transferModel.getData(sel);
     }
 
 }

@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package info.dolezel.fatrat.applet.menus;
+package info.dolezel.fatrat.applet;
 
 import info.dolezel.fatrat.applet.FatRatApplet;
-import info.dolezel.fatrat.applet.IconLoader;
+import info.dolezel.fatrat.applet.components.InfoBar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
@@ -88,6 +88,23 @@ public class TransferPopupMenu extends JPopupMenu {
         item.setAction(applet.actionMoveToBottom);
         item.setText("Move to bottom");
         item.setIcon(applet.loadIcon("/css/icons/move/bottom.png"));
+        this.add(item);
+        
+        this.addSeparator();
+        
+        item = new JMenuItem("Show info bar");
+        item.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String uuid;
+                
+                uuid = applet.getCurrentTransfer().get("uuid").toString();
+                
+                InfoBar bar = new InfoBar(uuid, applet.getSettings(), applet.getClient());
+                bar.setVisible(true);
+            }
+        });
         this.add(item);
     }
     
