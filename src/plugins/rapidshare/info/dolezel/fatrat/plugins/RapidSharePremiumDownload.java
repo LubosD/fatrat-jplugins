@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
  * @author lubos
  */
 
-@DownloadPluginInfo(name = "RapidShare.com premium download", regexp = "http://(www\\.)?rapidshare\\.com/files/\\d+/.+")
+@DownloadPluginInfo(name = "RapidShare.com premium download", regexp = "http://(www\\.)?rapidshare\\.com/files/\\d+/.+", truncIncomplete = false, forceSingleTransfer = false)
 public class RapidSharePremiumDownload extends DownloadPlugin implements URLAcceptableFilter {
 
     @Override
