@@ -23,25 +23,25 @@ public class TransferPopupMenu extends JPopupMenu {
         
         JMenuItem item;
 
-        item = new JMenuItem();
-        item.setAction(applet.actionResume);
+        item = new JMenuItem(applet.actionResume);
+        //item.setAction(applet.actionResume);
         item.setActionCommand("Active");
-        item.setText("Resume");
-        item.setIcon(applet.loadIcon("/css/icons/states/active.png"));
+        //item.setText("Resume");
+        //item.setIcon(applet.loadIcon("/css/icons/states/active.png"));
         this.add(item);
         
-        item = new JMenuItem();
-        item.setAction(applet.actionForceResume);
+        item = new JMenuItem(applet.actionForceResume);
+        //item.setAction(applet.actionForceResume);
         item.setActionCommand("ForcedActive");
-        item.setText("Force resume");
-        item.setIcon(applet.loadIcon("/css/icons/states/forcedactive.png"));
+        //item.setText("Force resume");
+        //item.setIcon(applet.loadIcon("/css/icons/states/forcedactive.png"));
         this.add(item);
         
-        item = new JMenuItem();
-        item.setAction(applet.actionPause);
+        item = new JMenuItem(applet.actionPause);
+        //item.setAction(applet.actionPause);
         item.setActionCommand("Paused");
-        item.setText("Pause");
-        item.setIcon(applet.loadIcon("/css/icons/states/paused.png"));
+        //item.setText("Pause");
+        //item.setIcon(applet.loadIcon("/css/icons/states/paused.png"));
         this.add(item);
         
         this.addSeparator();
@@ -62,32 +62,32 @@ public class TransferPopupMenu extends JPopupMenu {
         
         this.addSeparator();
         
-        item = new JMenuItem();
+        item = new JMenuItem(applet.actionMoveToTop);
         item.setActionCommand("top");
-        item.setAction(applet.actionMoveToTop);
-        item.setText("Move to top");
-        item.setIcon(applet.loadIcon("/css/icons/move/top.png"));
+        //item.setAction(applet.actionMoveToTop);
+        //item.setText("Move to top");
+        //item.setIcon(applet.loadIcon("/css/icons/move/top.png"));
         this.add(item);
         
-        item = new JMenuItem();
+        item = new JMenuItem(applet.actionMoveUp);
         item.setActionCommand("up");
-        item.setAction(applet.actionMoveUp);
-        item.setText("Move up");
-        item.setIcon(applet.loadIcon("/css/icons/move/up.png"));
+        //item.setAction(applet.actionMoveUp);
+        //item.setText("Move up");
+        //item.setIcon(applet.loadIcon("/css/icons/move/up.png"));
         this.add(item);
         
-        item = new JMenuItem();
+        item = new JMenuItem(applet.actionMoveDown);
         item.setActionCommand("down");
-        item.setAction(applet.actionMoveDown);
-        item.setText("Move down");
-        item.setIcon(applet.loadIcon("/css/icons/move/down.png"));
+        //item.setAction(applet.actionMoveDown);
+        //item.setText("Move down");
+        //item.setIcon(applet.loadIcon("/css/icons/move/down.png"));
         this.add(item);
         
-        item = new JMenuItem();
+        item = new JMenuItem(applet.actionMoveToBottom);
         item.setActionCommand("bottom");
-        item.setAction(applet.actionMoveToBottom);
-        item.setText("Move to bottom");
-        item.setIcon(applet.loadIcon("/css/icons/move/bottom.png"));
+        //item.setAction(applet.actionMoveToBottom);
+        //item.setText("Move to bottom");
+        //item.setIcon(applet.loadIcon("/css/icons/move/bottom.png"));
         this.add(item);
         
         this.addSeparator();

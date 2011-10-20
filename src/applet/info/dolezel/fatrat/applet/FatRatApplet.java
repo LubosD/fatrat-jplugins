@@ -96,14 +96,7 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FatRatApplet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FatRatApplet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FatRatApplet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FatRatApplet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (Exception ex) {
         }
         //</editor-fold>
 
@@ -155,35 +148,37 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
                     buttonDelete.setIcon(loadIcon("/css/icons/delete.png"));
                     buttonDeleteWithData.setIcon(loadIcon("/css/icons/delete_with_data.png"));
                     buttonRemoveCompleted.setIcon(loadIcon("/css/icons/states/completed.png"));
-                    buttonResume.setIcon(loadIcon("/css/icons/states/active.png"));
-                    buttonForceResume.setIcon(loadIcon("/css/icons/states/forcedactive.png"));
-                    buttonPause.setIcon(loadIcon("/css/icons/states/paused.png"));
-                    buttonMoveToTop.setIcon(loadIcon("/css/icons/move/top.png"));
-                    buttonMoveUp.setIcon(loadIcon("/css/icons/move/up.png"));
-                    buttonMoveDown.setIcon(loadIcon("/css/icons/move/down.png"));
-                    buttonMoveToBottom.setIcon(loadIcon("/css/icons/move/bottom.png"));
+                    //buttonResume.setIcon(loadIcon("/css/icons/states/active.png"));
+                    //buttonForceResume.setIcon(loadIcon("/css/icons/states/forcedactive.png"));
+                    //buttonPause.setIcon(loadIcon("/css/icons/states/paused.png"));
+                    //buttonMoveToTop.setIcon(loadIcon("/css/icons/move/top.png"));
+                    //buttonMoveUp.setIcon(loadIcon("/css/icons/move/up.png"));
+                    //buttonMoveDown.setIcon(loadIcon("/css/icons/move/down.png"));
+                    //buttonMoveToBottom.setIcon(loadIcon("/css/icons/move/bottom.png"));
                     
-                    actionResume = actionPause = actionForceResume = new AbstractAction() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            changeState(e.getActionCommand());
-                        }
-                    };
+                    actionResume = new StateAction("Resume", loadIcon("/css/icons/states/active.png"));
+                    actionPause = new StateAction("Pause", loadIcon("/css/icons/states/paused.png"));
+                    actionForceResume = new StateAction("Force resume", loadIcon("/css/icons/states/forcedactive.png"));
                     
+                    buttonResume.setAction(actionResume);
                     buttonResume.setActionCommand("Active");
                     buttonForceResume.setActionCommand("ForcedActive");
+                    buttonForceResume.setAction(actionForceResume);
                     buttonPause.setActionCommand("Pause");
+                    buttonPause.setAction(actionPause);
                     
-                    actionMoveToTop = actionMoveUp = actionMoveDown = actionMoveToBottom = new AbstractAction() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            moveTransfer(e.getActionCommand());
-                        }
-                    };
+                    actionMoveToTop = new MoveAction("Move to top", loadIcon("/css/icons/move/top.png"));
+                    actionMoveUp = new MoveAction("Move up", loadIcon("/css/icons/move/up.png"));
+                    actionMoveDown = new MoveAction("Move down", loadIcon("/css/icons/move/down.png"));
+                    actionMoveToBottom = new MoveAction("Move to bottom", loadIcon("/css/icons/move/bottom.png"));
                     
+                    buttonMoveToTop.setAction(actionMoveToTop);
                     buttonMoveToTop.setActionCommand("top");
+                    buttonMoveUp.setAction(actionMoveUp);
                     buttonMoveUp.setActionCommand("up");
+                    buttonMoveDown.setAction(actionMoveDown);
                     buttonMoveDown.setActionCommand("down");
+                    buttonMoveToBottom.setAction(actionMoveToBottom);
                     buttonMoveToBottom.setActionCommand("bottom");
                     
                     actionRemove = actionRemoveWithData = new AbstractAction() {
@@ -214,6 +209,7 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
                     NameAndState.addIcon("Waiting", loadIcon("/css/icons/states/waiting.png"));
                     NameAndState.addIcon("Waiting_upload", loadIcon("/css/icons/states/waiting_upload.png"));
                 }
+
             });
             setupXmlRpc();
             
@@ -292,24 +288,37 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
     private void updateUi() {
         boolean qempty = queueModel.getSize() == 0;
         int tsel = transfers.getSelectedRowCount();
+        String state = "";
+        
+        if (tsel == 1)
+            state = transferModel.getData(transfers.getSelectedRow()).get("state").toString();
         
         mainTab.setEnabledAt(1, tsel == 1);
         mainTab.setEnabledAt(2, tsel == 1);
         mainTab.setEnabledAt(3, !qempty);
         
-        actionResume.setEnabled(tsel > 0);
-        actionForceResume.setEnabled(tsel > 0);
-        actionPause.setEnabled(tsel > 0);
+        actionResume.setEnabled(tsel > 1 || (!state.equals("Active") && !state.equals("Waiting")));
+        //buttonResume.setEnabled(tsel > 1 || (!state.equals("Active") && !state.equals("Waiting")));
+        actionForceResume.setEnabled(tsel > 1 || !state.equals("ForcedActive"));
+        //buttonForceResume.setEnabled(tsel > 1 || !state.equals("ForcedActive"));
+        actionPause.setEnabled(tsel > 1 || !state.equals("Paused"));
+        //buttonPause.setEnabled(tsel > 1 || !state.equals("Paused"));
         actionMoveToTop.setEnabled(tsel > 0);
+        //buttonMoveToTop.setEnabled(tsel > 0);
         actionMoveUp.setEnabled(tsel > 0);
+        //buttonMoveUp.setEnabled(tsel > 0);
         actionMoveDown.setEnabled(tsel > 0);
+        //buttonMoveDown.setEnabled(tsel > 0);
         actionMoveToBottom.setEnabled(tsel > 0);
+        //buttonMoveToBottom.setEnabled(tsel > 0);
         
         actionRemove.setEnabled(tsel > 0);
         actionRemoveWithData.setEnabled(tsel > 0);
         
         if (!mainTab.isEnabledAt(mainTab.getSelectedIndex()))
             mainTab.setSelectedIndex(0);
+        
+        transferLog.setEnabled(tsel == 1);
     }
     
     static public void main (String argv[]) {
@@ -603,39 +612,31 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
         buttonResume.setAction(actionResume);
         buttonResume.setToolTipText("Resume");
-        buttonResume.setFocusable(false);
-        buttonResume.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonResume.setHideActionText(true);
         buttonResume.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonResume.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonResume.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbar.add(buttonResume);
 
         buttonForceResume.setAction(actionForceResume);
         buttonForceResume.setToolTipText("Force resume");
-        buttonForceResume.setFocusable(false);
-        buttonForceResume.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonForceResume.setHideActionText(true);
         buttonForceResume.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonForceResume.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonForceResume.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbar.add(buttonForceResume);
 
         buttonPause.setAction(actionPause);
         buttonPause.setToolTipText("Pause");
-        buttonPause.setFocusable(false);
-        buttonPause.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonPause.setHideActionText(true);
         buttonPause.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonPause.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonPause.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbar.add(buttonPause);
         toolbar.add(jSeparator2);
 
         buttonMoveToTop.setAction(actionMoveToTop);
         buttonMoveToTop.setToolTipText("Move to top");
-        buttonMoveToTop.setFocusable(false);
-        buttonMoveToTop.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonMoveToTop.setHideActionText(true);
         buttonMoveToTop.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonMoveToTop.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonMoveToTop.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         buttonMoveToTop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionMoveTransfer(evt);
@@ -645,11 +646,9 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
         buttonMoveUp.setAction(actionMoveUp);
         buttonMoveUp.setToolTipText("Move up");
-        buttonMoveUp.setFocusable(false);
-        buttonMoveUp.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonMoveUp.setHideActionText(true);
         buttonMoveUp.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonMoveUp.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonMoveUp.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         buttonMoveUp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionMoveTransfer(evt);
@@ -659,11 +658,9 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
         buttonMoveDown.setAction(actionMoveDown);
         buttonMoveDown.setToolTipText("Move down");
-        buttonMoveDown.setFocusable(false);
-        buttonMoveDown.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonMoveDown.setHideActionText(true);
         buttonMoveDown.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonMoveDown.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonMoveDown.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         buttonMoveDown.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionMoveTransfer(evt);
@@ -673,11 +670,9 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
         buttonMoveToBottom.setAction(actionMoveToBottom);
         buttonMoveToBottom.setToolTipText("Move to bottom");
-        buttonMoveToBottom.setFocusable(false);
-        buttonMoveToBottom.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        buttonMoveToBottom.setHideActionText(true);
         buttonMoveToBottom.setMargin(new java.awt.Insets(2, 2, 2, 2));
         buttonMoveToBottom.setMaximumSize(new java.awt.Dimension(24, 24));
-        buttonMoveToBottom.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         buttonMoveToBottom.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionMoveTransfer(evt);
@@ -1111,6 +1106,30 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
         if (sel < 0)
             return null;
         return transferModel.getData(sel);
+    }
+    
+    class StateAction extends AbstractAction {
+
+        public StateAction(String name, Icon icon) {
+            super(name, icon);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            changeState(e.getActionCommand());
+        }
+    }
+
+    class MoveAction extends AbstractAction {
+
+        public MoveAction(String name, Icon icon) {
+            super(name, icon);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            moveTransfer(e.getActionCommand());
+        }
     }
 
 }

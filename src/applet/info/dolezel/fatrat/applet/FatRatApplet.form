@@ -121,15 +121,13 @@
               <Connection code="actionResume" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Resume"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="buttonForceResume">
@@ -138,15 +136,13 @@
               <Connection code="actionForceResume" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Force resume"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="buttonPause">
@@ -155,15 +151,13 @@
               <Connection code="actionPause" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Pause"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator2">
@@ -174,15 +168,13 @@
               <Connection code="actionMoveToTop" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Move to top"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionMoveTransfer"/>
@@ -194,15 +186,13 @@
               <Connection code="actionMoveUp" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Move up"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionMoveTransfer"/>
@@ -214,15 +204,13 @@
               <Connection code="actionMoveDown" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Move down"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionMoveTransfer"/>
@@ -234,15 +222,13 @@
               <Connection code="actionMoveToBottom" type="code"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Move to bottom"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[2, 2, 2, 2]"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[24, 24]"/>
             </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionMoveTransfer"/>
