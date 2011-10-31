@@ -71,6 +71,7 @@ public class UloztoDownload extends DownloadPlugin {
 
         fetchPage(link, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String,String> headers) {
                 try {
                     if (headers.containsKey("location")) {
@@ -93,8 +94,10 @@ public class UloztoDownload extends DownloadPlugin {
                     final Matcher mAction = reAction.matcher(cb);
                     Matcher mName = reFileName.matcher(cb);
                     Matcher mPremium = rePremiumLink.matcher(cb);
+                    
+                    String user = (String) Settings.getValue("ulozto/user", "");
 
-                    if (mPremium.find()) {
+                    if (!user.isEmpty() && mPremium.find()) {
                         String url = mPremium.group(1);
                         if (url.startsWith("/kredit"))
                             setMessage("Credit depleted, using FREE download");
@@ -125,16 +128,19 @@ public class UloztoDownload extends DownloadPlugin {
                     final String captchaUrl = m.group(1);
                     UloztoDownload.this.mySolveCaptcha(captchaUrl, new CachedCaptchaListener(m.group(2)) {
 
+                        @Override
                         public void onFailed() {
                             setFailed("Failed to decode the captcha code");
                         }
 
+                        @Override
                         public void onSolved(String text, String captchaCode) {
                             
                             rememberCaptcha(captchaCode, captchaUrl, text);
                             
                             fetchPage(mAction.group(1), new PageFetchListener() {
 
+                                @Override
                                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                                     String target = headers.get("location");
                                     if (target == null)
@@ -143,6 +149,7 @@ public class UloztoDownload extends DownloadPlugin {
                                         startDownload(target);
                                 }
 
+                                @Override
                                 public void onFailed(String error) {
                                     setFailed(error);
                                 }
@@ -157,6 +164,7 @@ public class UloztoDownload extends DownloadPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to load the initial page");
             }
@@ -189,6 +197,7 @@ public class UloztoDownload extends DownloadPlugin {
             // check if still valid
             fetchPage(rememberedCaptcha.url, new PageFetchListener() {
 
+                @Override
                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                     try {
                         if (Arrays.equals(rememberedCaptcha.md5, MD5(buf))) {
@@ -202,6 +211,7 @@ public class UloztoDownload extends DownloadPlugin {
                     solveCaptcha(captchaUrl, captchaListener);
                 }
 
+                @Override
                 public void onFailed(String error) {
                     rememberedCaptcha = null;
                     solveCaptcha(captchaUrl, captchaListener);
@@ -217,6 +227,7 @@ public class UloztoDownload extends DownloadPlugin {
         
         fetchPage(captchaUrl, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 try {
                     RememberedCaptcha rc = new RememberedCaptcha();
@@ -231,6 +242,7 @@ public class UloztoDownload extends DownloadPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
             }
 
@@ -263,11 +275,13 @@ public class UloztoDownload extends DownloadPlugin {
         
         this.fetchPage("http://www.uloz.to/?do=authForm-submit", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 loggedIn = true;
                 processLink(link);
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }

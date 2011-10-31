@@ -54,6 +54,7 @@ public class WuploadDownload extends DownloadPlugin {
         
         fetchPage(downloadLink, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher mFileName = reFileName.matcher(cb);
@@ -61,6 +62,7 @@ public class WuploadDownload extends DownloadPlugin {
                     reportFileName(mFileName.group(1));
             }
 
+            @Override
             public void onFailed(String error) {
             }
         });
@@ -71,6 +73,7 @@ public class WuploadDownload extends DownloadPlugin {
     private void doStep() {
         this.fetchPage(downloadLink+"?start=1", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 String str = cb.toString();
@@ -90,6 +93,7 @@ public class WuploadDownload extends DownloadPlugin {
                     
                     WuploadDownload.this.startWait(secs+1, new WaitListener() {
 
+                        @Override
                         public void onSecondElapsed(int secondsLeft) {
                             if (secondsLeft > 0)
                                 setMessage("Waiting: "+formatTime(secondsLeft)+" left");
@@ -102,10 +106,12 @@ public class WuploadDownload extends DownloadPlugin {
                     
                     solveReCaptcha(rcCode, new ReCaptchaListener() {
 
+                        @Override
                         public void onFailed() {
                             setFailed("Failed to solve captcha");
                         }
 
+                        @Override
                         public void onSolved(String text, String code) {
                             try {
                                 postData = "recaptcha_challenge_field="+code+"&recaptcha_response_field="+URLEncoder.encode(text, "UTF-8");
@@ -116,10 +122,13 @@ public class WuploadDownload extends DownloadPlugin {
                     });
                 } else if (mDownload.find()) {
                     startDownload(mDownload.group(1), downloadLink);
+                } else if (str.contains("The file that you're trying to download is larger")) {
+                    setFailed("The file is too large for free download");
                 } else
                     setFailed("Unknown page contents.");
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }

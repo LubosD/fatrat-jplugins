@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 package info.dolezel.fatrat.plugins;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,11 +33,19 @@ public abstract class SearchPlugin extends Plugin {
     public abstract void search(String query);
     
     public static class SearchResult {
-        public String name, url;
+        public String name, url, extraInfo;
         public long fileSize;
     }
     
     protected native void searchDone(SearchResult[] results);
+    
+    protected void searchDone(List<SearchResult> results) {
+        SearchResult[] arr = results.toArray(new SearchResult[results.size()]);
+        searchDone(arr);
+    }
+    protected void searchFailed() {
+        searchDone((SearchResult[]) null);
+    }
     
     protected static long parseSize(String str) {
         Matcher m = reFileSize.matcher(str);
@@ -46,7 +55,7 @@ public abstract class SearchPlugin extends Plugin {
         String number = m.group(1).replace(',', '.');
         String unit = m.group(2).toLowerCase().replace("i", "");
         
-        long result = Long.parseLong(number);
+        double result = Double.parseDouble(number);
         if (unit.equals("b"))
             ;
         else if (unit.equals("kb"))
@@ -62,6 +71,6 @@ public abstract class SearchPlugin extends Plugin {
         else
             result = -1;
         
-        return result;
+        return (long) result;
     }
 }
