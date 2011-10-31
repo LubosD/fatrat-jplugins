@@ -4,7 +4,8 @@
  */
 package info.dolezel.fatrat.web;
 
-import info.dolezel.fatrat.web.feaures.FeatureInfo;
+import info.dolezel.fatrat.web.features.FeatureInfo;
+import info.dolezel.fatrat.web.features.Plugin;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -65,20 +66,11 @@ public class UpdateServlet extends HttpServlet {
         }
         
     }
-
+    
     private void printPlugin(File ifile) throws Exception {
-        JarFile file = new JarFile(ifile);
-        Manifest manifest = file.getManifest();
-        Attributes attr = manifest.getMainAttributes();
-        String name = ifile.getName();
-        String version, desc;
+        Plugin pi = Plugin.getPluginInfo(ifile);
         
-        name = name.substring(0, name.length()-4); // remove ".jar"
-        version = attr.getValue("Implementation-Version");
-        desc = attr.getValue("Description");
-        
-        os.print(name+"\t"+version+"\t"+desc+"\n");
-        file.close();
+        os.print(pi.name+"\t"+pi.version+"\t"+pi.desc+"\n");
     }
 
     @Override

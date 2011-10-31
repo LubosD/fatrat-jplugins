@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@UploadPluginInfo(name="MegaUpload.com uploader", sizeLimit = 1024*1024*1024*2)
+@UploadPluginInfo(name="MegaUpload.com uploader", sizeLimit = 1024l*1024l*1024l*2l)
 public class MegauploadUpload extends UploadPlugin {
 
     static final Pattern reURL = Pattern.compile("parent\\.downloadurl = '([^']+)';");

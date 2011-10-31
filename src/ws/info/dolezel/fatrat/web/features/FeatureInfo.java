@@ -2,16 +2,19 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package info.dolezel.fatrat.web.feaures;
+package info.dolezel.fatrat.web.features;
 
 import info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo;
 import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.annotations.ExtractorPluginInfo;
 import info.dolezel.fatrat.plugins.annotations.SearchPluginInfo;
 import info.dolezel.fatrat.plugins.annotations.UploadPluginInfo;
+import info.dolezel.fatrat.plugins.util.FormatUtils;
+import info.dolezel.fatrat.web.UpdateServlet;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -46,6 +49,8 @@ public class FeatureInfo {
                 return name.endsWith(".jar");
             }
         });
+        
+        Arrays.sort(jars);
         
         synchronized(cachedInfo) {
             // Remove old
@@ -102,7 +107,9 @@ public class FeatureInfo {
             String path = pluginPath + "/" + name;
             JarClassLoader jcl = new JarClassLoader(path);
             Set<Class> clss;
-            Plugin p = new Plugin();
+            Plugin p;
+            
+            p = Plugin.getPluginInfo(new File(path));
             
             // Download plugins
             clss = findClasses(new File(path), "info.dolezel.fatrat.plugins", DownloadPluginInfo.class, jcl);
@@ -114,7 +121,7 @@ public class FeatureInfo {
                 
                 f.type = Feature.FeatureType.DownloadPlugin;
                 f.name = ann.name();
-                f.info = "Regexp: "+ann.regexp();
+                f.info = "Regexp: "+ann.regexp()+"\nResumable: "+ ((ann.truncIncomplete()) ? "no" : "yes") + "\nMultiple transfers: " + ((ann.forceSingleTransfer()) ? "no" : "yes");
                 f.className = cls.getCanonicalName();
                 
                 p.features.add(f);
@@ -130,23 +137,7 @@ public class FeatureInfo {
                 
                 f.type = Feature.FeatureType.UploadPlugin;
                 f.name = ann.name();
-                f.info = "File size limit: " + ann.sizeLimit();
-                f.className = cls.getCanonicalName();
-                
-                p.features.add(f);
-            }
-            
-            // Extraction plugins
-            clss = findClasses(new File(path), "info.dolezel.fatrat.plugins", ExtractorPluginInfo.class, jcl);
-            
-            for (Iterator<Class> it = clss.iterator(); it.hasNext(); ) {
-                Class cls = it.next();
-                ExtractorPluginInfo ann = (ExtractorPluginInfo) cls.getAnnotation(ExtractorPluginInfo.class);
-                Feature f = new Feature();
-                
-                f.type = Feature.FeatureType.ExtractionPlugin;
-                f.name = ann.name();
-                f.info = "Regexp: "+ann.regexp();
+                f.info = "File size limit: " + FormatUtils.formatSize(ann.sizeLimit());
                 f.className = cls.getCanonicalName();
                 
                 p.features.add(f);
@@ -177,7 +168,7 @@ public class FeatureInfo {
                 Feature f = new Feature();
                 
                 f.type = Feature.FeatureType.AccountStatusPlugin;
-                f.name = ann.name();
+                f.name = ann.name() + " account status";
                 f.className = cls.getCanonicalName();
                 
                 p.features.add(f);
@@ -192,7 +183,7 @@ public class FeatureInfo {
                 Feature f = new Feature();
                 
                 f.type = Feature.FeatureType.SearchPlugin;
-                f.name = ann.name();
+                f.name = ann.name() + " search plugin";
                 f.className = cls.getCanonicalName();
                 
                 p.features.add(f);
@@ -200,13 +191,14 @@ public class FeatureInfo {
             
             return p;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
     }
     
     private static Set<Class> findClasses(File directory, String packageName, Class annotation, ClassLoader ldr) throws ClassNotFoundException, IOException {
         Set<Class> classes = new HashSet<Class>();
-        if (!directory.exists()) {
+        if (!directory.exists() || directory.isFile()) {
 
             String fullPath = directory.toString();
             String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
@@ -223,6 +215,7 @@ public class FeatureInfo {
                         classes.add(cls);
                 }
             }
+            jarFile.close();
         } else {
             File[] files = directory.listFiles();
             for (File file : files) {
@@ -238,5 +231,17 @@ public class FeatureInfo {
             }
         }
         return classes;
+    }
+    
+    public static void main(String[] args) {
+        FeatureInfo.init(args[0]);
+        
+        List<Plugin> plugins = FeatureInfo.getPlugins();
+        for (Plugin p : plugins) {
+            System.out.println("** Plugin: "+p.name);
+            for (Feature f : p.features) {
+                System.out.println("Feature: "+f.name);
+            }
+        }
     }
 }
