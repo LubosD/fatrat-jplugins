@@ -4,12 +4,14 @@
  */
 package info.dolezel.fatrat.web;
 
+import info.dolezel.fatrat.web.feaures.FeatureInfo;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -78,5 +80,15 @@ public class UpdateServlet extends HttpServlet {
         os.print(name+"\t"+version+"\t"+desc+"\n");
         file.close();
     }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        
+        String version = getServletConfig().getInitParameter("defaultVersion");
+        FeatureInfo.init(getServletContext().getRealPath("/update/plugins/"+version));
+    }
+    
+    
     
 }

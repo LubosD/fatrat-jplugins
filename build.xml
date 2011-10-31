@@ -28,6 +28,7 @@
 		<pathelement location="${lib}/servlet-api-2.5.jar"/>
 		<pathelement location="${lib}/mailapi.jar"/>
 		<pathelement location="${lib}/commons-io.jar"/>
+		<pathelement location="${dist}/fatrat-jplugins.jar"/>
 	</path>
 	
 	<path id="classpath_applet">
@@ -46,7 +47,7 @@
 			<javac srcdir="${src}/core" destdir="${build}/core" source="1.6" target="1.6"/>
 	</target>
 	
-	<target name="compile-ws">
+	<target name="compile-ws" depends="jar-core">
 			<mkdir dir="${build}/ws"/>
 			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"/>
 	</target>
