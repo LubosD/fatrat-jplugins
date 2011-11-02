@@ -20,7 +20,7 @@
 	<!-- set classpath -->
 	<path id="classpath">  
 		<pathelement location="${dist}/fatrat-jplugins.jar"/> 
-		<pathelement location="${lib}/commons-lang-2.6.jar"/> 
+		<pathelement location="${lib}/commons-lang.jar"/> 
 		<pathelement location="${lib}/commons-codec.jar"/> 
 		<pathelement location="${lib}/commons-io.jar"/>
 	</path>
