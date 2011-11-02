@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,12 +24,10 @@ package info.dolezel.fatrat.plugins.helpers;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,13 +37,14 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import org.apache.commons.io.IOUtils;
 
 /**
  * For internal use only.
  * @author lubos
  */
 public class NativeHelpers {
-    private static MyClassLoader loader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
+    private static final MyClassLoader loader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
 
     static class MyClassLoader extends URLClassLoader {
         public MyClassLoader(ClassLoader parent) {
@@ -169,17 +168,8 @@ public class NativeHelpers {
             InputStream stream = loader.getResourceAsStream(path);
             if (stream == null)
                 return null;
-            InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
-
-            char[] buf = new char[1024];
-            StringBuilder sb = new StringBuilder();
-            int read;
-
-            while ( (read = reader.read(buf)) > 0)
-                sb.append(buf, 0, read);
-
-            return sb.toString();
-        } catch (Exception e) {
+            return IOUtils.toString(stream, "UTF-8");
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }

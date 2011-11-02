@@ -20,8 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.util.FormatUtils;
+
 /**
  * Premium account balance display plugin.
+ * Do not forget to add a {@link info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo} annotation.
  * @author lubos
  */
 public abstract class AccountStatusPlugin extends Plugin {
@@ -48,40 +51,20 @@ public abstract class AccountStatusPlugin extends Plugin {
      * @param state Used for a graphical icon.
      * @param balance A string that will be displayed to the user. Can be <code>null</code> if state is AccountError.
      */
-    protected native void reportAccountBalance(AccountState state, String balance);
+    protected native final void reportAccountBalance(AccountState state, String balance);
     
+    /**
+     * @deprecated
+     */
     protected static long parseSize(String str) {
-        String[] p = str.trim().replaceAll(" {2,}", " ").split(" ");
-        double d;
-        long mul = 0;
-        
-        if (p.length != 2)
-            return -1;
-        
-        try {
-            d = Double.parseDouble(p[0].replace(',', '.'));
-        } catch (Exception e) {
-            return -1;
-        }
-        
-        p[1] = p[1].toLowerCase();
-        
-        if (p[1].equals("b"))
-            mul = 1;
-        else if (p[1].equals("kb"))
-            mul = 1024;
-        else if (p[1].equals("mb"))
-            mul = 1024*1024;
-        else if (p[1].equals("gb"))
-            mul = 1024*1024*1024;
-        else if (p[1].equals("tb"))
-            mul = 1024l*1024l*1024l*1024l;
-        else if (p[1].equals("pb"))
-            mul = 1024l*1024l*1024l*1024l*1024l;
-        
-        return (long) (d*mul);
+        return FormatUtils.parseSize(str);
     }
     
+    /**
+     * This method is used to make assess the number of bytes left on the account.
+     * @param bytesLeft Number of bytes
+     * @return An account state enum value
+     */
     protected static AccountState adviseState(long bytesLeft) {
         if (bytesLeft < 0)
             return AccountState.AccountGood;
@@ -93,7 +76,11 @@ public abstract class AccountStatusPlugin extends Plugin {
             return AccountState.AccountGood;
     }
     
-    protected void setFailed(String error) {
+    /**
+     * Call if you failed to retrieve the account state.
+     * @param error 
+     */
+    protected final void setFailed(String error) {
         reportAccountBalance(AccountState.AccountBad, error);
     }
 }

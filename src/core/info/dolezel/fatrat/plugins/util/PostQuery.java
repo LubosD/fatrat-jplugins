@@ -34,6 +34,10 @@ import java.util.logging.Logger;
 public class PostQuery {
     Map<String,String> values = new HashMap<String,String>();
 
+    /**
+     * Adds a key-value pair into the url-encoded query string.
+     * @return Returns <code>this</code>.
+     */
     public PostQuery add(String name, String value) {
         values.put(name, value);
         return this;

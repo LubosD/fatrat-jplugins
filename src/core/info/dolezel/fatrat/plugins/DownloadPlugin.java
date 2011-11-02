@@ -61,7 +61,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * This is the last step in the whole procedure. Cookies from {@link #fetchPage} calls are automatically preserved.
      * @param url URL to download, along with all other information needed.
      */
-    protected native void startDownload(DownloadUrl url);
+    protected final native void startDownload(DownloadUrl url);
 
     /**
      * Gives FatRat the URL to download the desired file.
@@ -69,7 +69,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param url URL to download.
      * @param referrer Optional HTTP Referer URL
      */
-	protected void startDownload(String url, String referrer, String userAgent, String fileName) {
+	protected final void startDownload(String url, String referrer, String userAgent, String fileName) {
         startDownload(new DownloadUrl(url).setReferrer(referrer).setUserAgent(userAgent).setFileName(fileName));
     }
 
@@ -78,13 +78,13 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * This is the last step in the whole procedure.
      * @param url URL to download, all received cookies will be used automatically
      */
-    protected void startDownload(String url) {
+    protected final void startDownload(String url) {
         startDownload(new DownloadUrl(url));
     }
-    protected void startDownload(String url, String referrer) {
+    protected final void startDownload(String url, String referrer) {
         startDownload(new DownloadUrl(url).setReferrer(referrer));
     }
-    protected void startDownload(String url, String referrer, String userAgent) {
+    protected final void startDownload(String url, String referrer, String userAgent) {
         startDownload(new DownloadUrl(url).setReferrer(referrer).setUserAgent(userAgent));
     }
 
@@ -93,7 +93,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * @param seconds The length of the timer in seconds.
      * @param cb Callback listener.
      */
-	protected native void startWait(int seconds, WaitListener cb);
+	protected final native void startWait(int seconds, WaitListener cb);
 
     /**
      * Ask FatRat to solve a captcha image
@@ -105,6 +105,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
     protected void solveReCaptcha(String code, final ReCaptchaListener cl) {
         fetchPage("http://www.google.com/recaptcha/api/challenge?k="+code+"&ajax=1", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 final Matcher m = reImageCode.matcher(cb);
@@ -116,16 +117,19 @@ public abstract class DownloadPlugin extends TransferPlugin {
 
                 solveCaptcha("http://www.google.com/recaptcha/api/image?c="+m.group(1), new CaptchaListener() {
 
+                    @Override
                     public void onFailed() {
                         cl.onFailed();
                     }
 
+                    @Override
                     public void onSolved(String text) {
                         cl.onSolved(text, m.group(1));
                     }
                 });
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
@@ -139,7 +143,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
      * The name given is used only until {@link #startDownload} is called.
      * @param name A file name
      */
-    protected native void reportFileName(String name);
+    protected final native void reportFileName(String name);
 
     /**
      * Reimplement if you need to check e.g. for HTML files containing 'File not found' after you call {@link #startDownload}
@@ -150,6 +154,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
 
     /**
      * Formats the time in seconds into a user friendly string.
+     * @deprecated
      */
     public static String formatTime(int seconds) {
         return FormatUtils.formatTime(seconds);

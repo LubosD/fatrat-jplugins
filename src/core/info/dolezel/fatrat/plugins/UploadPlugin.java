@@ -21,11 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Extend this class to create a new upload plugin.
+ * Do not forget to add a {@link info.dolezel.fatrat.plugins.annotations.UploadPluginInfo} annotation.
  * @author lubos
  */
 public abstract class UploadPlugin extends TransferPlugin {
@@ -87,7 +87,7 @@ public abstract class UploadPlugin extends TransferPlugin {
      * @param url URL where the data should be HTTP POSTed
      * @param mimeParts MIME parts of the request
      */
-    protected void startUpload(String url, MimePart[] mimeParts) {
+    protected final void startUpload(String url, MimePart[] mimeParts) {
         startUploadChunk(url, mimeParts, 0, -1);
     }
     
@@ -99,7 +99,7 @@ public abstract class UploadPlugin extends TransferPlugin {
      * @param offset Where from in the file start uploading
      * @param bytes How many bytes to upload from the offset
      */
-    protected native void startUploadChunk(String url, MimePart[] mimeParts, long offset, long bytes);
+    protected final native void startUploadChunk(String url, MimePart[] mimeParts, long offset, long bytes);
 
     /**
      * Gives the user the link for the file that has been uploaded.
@@ -107,5 +107,5 @@ public abstract class UploadPlugin extends TransferPlugin {
      * @param urlDownload Download URL
      * @param killLink Optional kill link for file removal
      */
-    protected native void putDownloadLink(String urlDownload, String killLink);
+    protected final native void putDownloadLink(String urlDownload, String killLink);
 }

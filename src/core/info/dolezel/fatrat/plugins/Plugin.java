@@ -36,7 +36,7 @@ public abstract class Plugin extends NativeObject {
      * @param url The URL to be downloaded.
      * @param cb A callback object where you'll receive the data
      */
-	protected void fetchPage(String url, PageFetchListener cb) {
+	protected final void fetchPage(String url, PageFetchListener cb) {
         fetchPage(url, cb, null, null);
     }
     
@@ -46,9 +46,9 @@ public abstract class Plugin extends NativeObject {
      * @param cb A callback object where you'll receive the data
      * @param postData Optional data to be sent using the POST method
      */
-    protected void fetchPage(String url, PageFetchListener cb, String postData) {
+    protected final void fetchPage(String url, PageFetchListener cb, String postData) {
         fetchPage(url, cb, postData, null);
     }
     
-    protected native void fetchPage(String url, PageFetchListener cb, String postData, Map<String,String> headers);
+    protected final native void fetchPage(String url, PageFetchListener cb, String postData, Map<String,String> headers);
 }

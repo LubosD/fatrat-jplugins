@@ -25,7 +25,7 @@ package info.dolezel.fatrat.plugins.config;
  * Typically this is used to retrieve settings saved through a config dialog specified by {@link info.dolezel.fatrat.plugins.annotations.ConfigDialog}.
  * @author lubos
  */
-public class Settings {
+public final class Settings {
     /**
      * Sets a global persistent config value.
      * @param name The key

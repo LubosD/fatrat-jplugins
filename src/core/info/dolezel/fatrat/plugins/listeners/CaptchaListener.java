@@ -23,7 +23,7 @@ package info.dolezel.fatrat.plugins.listeners;
 import java.util.EventListener;
 
 /**
- *
+ * Implement this interface to receive captcha solver events.
  * @author lubos
  */
 public interface CaptchaListener extends EventListener {

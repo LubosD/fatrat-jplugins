@@ -39,5 +39,5 @@ public abstract class ExtractorPlugin extends TransferPlugin {
     /**
       * Report the result of plugin's work to the application.
       */
-    protected native void finishedExtraction(String[] links);
+    protected final native void finishedExtraction(String[] links);
 }

@@ -22,6 +22,7 @@
 		<pathelement location="${dist}/fatrat-jplugins.jar"/> 
 		<pathelement location="${lib}/commons-lang-2.6.jar"/> 
 		<pathelement location="${lib}/commons-codec.jar"/> 
+		<pathelement location="${lib}/commons-io.jar"/>
 	</path>
 	
 	<path id="classpath_ws">  
@@ -44,7 +45,7 @@
 	
 	<target name="compile-core">
 			<mkdir dir="${build}/core"/>
-			<javac srcdir="${src}/core" destdir="${build}/core" source="1.6" target="1.6"/>
+			<javac srcdir="${src}/core" destdir="${build}/core" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-ws" depends="jar-core">

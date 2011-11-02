@@ -19,58 +19,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.util.FormatUtils;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- *
+ * Extend this class to add support for a new file sharing search engine.
+ * Do not forget to add a {@link info.dolezel.fatrat.plugins.annotations.SearchPluginInfo} annotation.
  * @author lubos
  */
 public abstract class SearchPlugin extends Plugin {
-    protected static final Pattern reFileSize = Pattern.compile("([\\d\\.,]+)\\s*(b|ki?b|mi?b|gi?b|ti?b|pi?b)", Pattern.CASE_INSENSITIVE);
     
+    /**
+     * Implement this method to receive search queries.
+     * @param query Unescaped search query
+     */
     public abstract void search(String query);
     
+    /**
+     * Use this class to return search results to the application.
+     */
     public static class SearchResult {
         public String name, url, extraInfo;
         public long fileSize;
     }
     
-    protected native void searchDone(SearchResult[] results);
+    /**
+     * Call this method when the search has finished with success.
+     * @param results 
+     */
+    protected final native void searchDone(SearchResult[] results);
     
-    protected void searchDone(List<SearchResult> results) {
+    /**
+     * Call this method when the search has finished with success.
+     * @param results 
+     */
+    protected final void searchDone(List<SearchResult> results) {
         SearchResult[] arr = results.toArray(new SearchResult[results.size()]);
         searchDone(arr);
     }
-    protected void searchFailed() {
+    
+    /**
+     * Call this method when the search has finished with a failure.
+     */
+    protected final void searchFailed() {
         searchDone((SearchResult[]) null);
     }
     
+    /**
+     * @deprecated
+     */
     protected static long parseSize(String str) {
-        Matcher m = reFileSize.matcher(str);
-        if (!m.find())
-            return -1;
-        
-        String number = m.group(1).replace(',', '.');
-        String unit = m.group(2).toLowerCase().replace("i", "");
-        
-        double result = Double.parseDouble(number);
-        if (unit.equals("b"))
-            ;
-        else if (unit.equals("kb"))
-            result *= 1024;
-        else if (unit.equals("mb"))
-            result *= 1024l*1024l;
-        else if (unit.equals("gb"))
-            result *= 1024l*1024l*1024l;
-        else if (unit.equals("tb"))
-            result *= 1024l*1024l*1024l*1024l;
-        else if (unit.equals("pb"))
-            result *= 1024l*1024l*1024l*1024l*1024l;
-        else
-            result = -1;
-        
-        return (long) result;
+        return FormatUtils.parseSize(str);
     }
 }

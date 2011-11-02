@@ -24,7 +24,7 @@ package info.dolezel.fatrat.plugins.listeners;
 import java.util.EventListener;
 
 /**
- *
+ * Implement this interface to use a countdown timer.
  * @author lubos
  */
 public interface WaitListener extends EventListener {

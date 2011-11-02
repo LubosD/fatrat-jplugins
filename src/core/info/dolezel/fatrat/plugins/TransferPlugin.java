@@ -49,23 +49,23 @@ public abstract class TransferPlugin extends Plugin {
     /**
      * Sets the message seen in the transfer list
      */
-    protected native void setMessage(String msg);
+    protected final native void setMessage(String msg);
 
     /**
      * Sets the transfer state
      */
-	protected native void setState(State state);
+	protected final native void setState(State state);
 
     /**
      * Puts a message into the transfer log
      */
-    protected native void logMessage(String msg);
+    protected final native void logMessage(String msg);
     
     /**
      * Set a transfer-specific variable.
      * The value is preserved between application restarts. Use for resume information.
      */
-    protected native void setPersistentVariable(String key, Object value);
+    protected final native void setPersistentVariable(String key, Object value);
     
     /**
      * Gets a transfer specific variable.
@@ -73,12 +73,12 @@ public abstract class TransferPlugin extends Plugin {
      * @param key
      * @return Value assigned or null.
      */
-    protected native Object getPersistentVariable(String key);
+    protected final native Object getPersistentVariable(String key);
 
     /**
      * A shorthand for calling <code>setMessage(error)</code> and <code>setState(State.Failed)</code>
      */
-    protected void setFailed(String error) {
+    protected final void setFailed(String error) {
         setMessage(error);
         setState(State.Failed);
     }

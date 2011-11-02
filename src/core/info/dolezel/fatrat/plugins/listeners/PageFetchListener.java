@@ -26,7 +26,7 @@ import java.util.EventListener;
 import java.util.Map;
 
 /**
- *
+ * Implement this interface to receive data from a URL.
  * @author lubos
  */
 public interface PageFetchListener extends EventListener {

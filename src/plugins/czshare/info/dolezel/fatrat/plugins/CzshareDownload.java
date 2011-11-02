@@ -35,7 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-@DownloadPluginInfo(name = "CZshare.com premium download", regexp = "http://(www\\.)?czshare\\.com/(\\d+/.+|download_file\\.php\\?id=(\\d+)&file=(.+))")
+@DownloadPluginInfo(name = "CZshare.com premium download", regexp = "http://(www\\.)?czshare\\.com/(\\d+/.+|download_file\\.php\\?id=(\\d+)&file=(.+))", forceSingleTransfer = false)
 @ConfigDialog("czshare.xml")
 public class CzshareDownload extends DownloadPlugin {
     static final Pattern reOldUrl = Pattern.compile("http://(www\\.)?czshare\\.com/download_file\\.php\\?id=(\\d+)&file=(.+)");

@@ -1,7 +1,22 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+FatRat download manager
+http://fatrat.dolezel.info
+
+Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 package info.dolezel.fatrat.plugins.util;
 
 import java.io.BufferedReader;
@@ -9,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -36,40 +52,27 @@ public class FileUtils {
         } catch (IOException ex) {
             return null;
         } finally {
-            try {
-                fis.close();
-            } catch (IOException ex) {
-            }
+            IOUtils.closeQuietly(fis);
         }
     }
     
+    /**
+     * Reads the whole file and returns it as a String.
+     * The UTF-8 encoding is assumed.
+     * @param file The file path.
+     * @return The file contents or <code>null</code> if the operation failed.
+     */
     public static String fileReadAll(String file) {
         FileInputStream fis = null;
-        DataInputStream dis = null;
-        InputStreamReader isr = null;
         
         try {
             fis = new FileInputStream(file);
-            dis = new DataInputStream(fis);
-            isr = new InputStreamReader(dis);
             
-            StringBuilder sb = new StringBuilder();
-            char[] c = new char[4096];
-            
-            while (true) {
-                int r = isr.read(c);
-                if (r < 0)
-                    return sb.toString();
-                sb.append(c, 0, r);
-            }
-            
+            return IOUtils.toString(fis, "UTF-8");
         } catch (IOException ex) {
             return null;
         } finally {
-            try {
-                fis.close();
-            } catch (IOException ex) {
-            }
+            IOUtils.closeQuietly(fis);
         }
     }
 }
