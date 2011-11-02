@@ -26,6 +26,9 @@ package info.dolezel.fatrat.plugins.config;
  * @author lubos
  */
 public final class Settings {
+    private Settings() {
+    }
+    
     /**
      * Sets a global persistent config value.
      * @param name The key

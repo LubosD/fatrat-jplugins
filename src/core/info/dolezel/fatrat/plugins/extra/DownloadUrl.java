@@ -28,6 +28,9 @@ package info.dolezel.fatrat.plugins.extra;
 public class DownloadUrl {
     String url, referrer, userAgent, fileName, postData;
     
+    /**
+     * @param url The URL FatRat should start downloading from.
+     */
     public DownloadUrl(String url) {
         this.url = url;
     }

@@ -23,6 +23,7 @@
 		<pathelement location="${lib}/commons-lang.jar"/> 
 		<pathelement location="${lib}/commons-codec.jar"/> 
 		<pathelement location="${lib}/commons-io.jar"/>
+		<pathelement location="${dist}/json.jar"/>
 	</path>
 	
 	<path id="classpath_ws">  
@@ -43,7 +44,7 @@
 	<target name="default" depends="jar">
 	</target>
 	
-	<target name="compile-core">
+	<target name="compile-core" depends="jar-json">
 			<mkdir dir="${build}/core"/>
 			<javac srcdir="${src}/core" destdir="${build}/core" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
@@ -51,6 +52,11 @@
 	<target name="compile-ws" depends="jar-core">
 			<mkdir dir="${build}/ws"/>
 			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"  debug="true"/>
+	</target>
+	
+	<target name="compile-json">
+			<mkdir dir="${build}/json"/>
+			<javac srcdir="${src}/json" destdir="${build}/json" source="1.6" target="1.6"  debug="true"/>
 	</target>
 	
 	<target name="compile-applet">
@@ -74,6 +80,11 @@
 			<javac srcdir="${src}/plugins/wupload" destdir="${build}/plugins/wupload" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
+	<target name="compile-filesonic" depends="jar-core">
+			<mkdir dir="${build}/plugins/filesonic"/>
+			<javac srcdir="${src}/plugins/filesonic" destdir="${build}/plugins/filesonic" classpathref="classpath" source="1.6" target="1.6"/>
+	</target>
+	
 	<target name="compile-rapidshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/rapidshare"/>
 			<copy file="${src}/plugins/rapidshare/rapidshare.xml" todir="${build}/plugins/rapidshare"/>
@@ -88,6 +99,11 @@
 	<target name="compile-fileserve" depends="jar-core">
 			<mkdir dir="${build}/plugins/fileserve"/>
 			<javac srcdir="${src}/plugins/fileserve" destdir="${build}/plugins/fileserve" classpathref="classpath" source="1.6" target="1.6"/>
+	</target>
+	
+	<target name="compile-metacafe" depends="jar-core">
+			<mkdir dir="${build}/plugins/metacafe"/>
+			<javac srcdir="${src}/plugins/metacafe" destdir="${build}/plugins/metacafe" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-megaupload" depends="jar-core">
@@ -128,7 +144,7 @@
 			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws,compile-applet">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws,compile-applet,compile-filesonic,compile-metacafe">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -251,6 +267,16 @@
 		</jar>
 	</target>
 	
+	<target name="jar-filesonic" depends="compile-filesonic">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-filesonic.jar" basedir="${build}/plugins/filesonic" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for free downloads from FileSonic.com"/>
+			</manifest>
+		</jar>
+	</target>
+	
 	<target name="jar-hellshare" depends="compile-hellshare">
 			<mkdir dir="${dist}"/>
 			<jar destfile="${dist}/fatrat-hellshare.jar" basedir="${build}/plugins/hellshare" level="9">
@@ -271,6 +297,16 @@
 		</jar>
 	</target>
 	
+	<target name="jar-metacafe" depends="compile-metacafe">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-metacafe.jar" basedir="${build}/plugins/metacafe" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for video downloads from MetaCafe.com"/>
+			</manifest>
+		</jar>
+	</target>
+	
 	<target name="jar-applet" depends="compile-applet">
 			<mkdir dir="${dist}"/>
 			<jar destfile="${dist}/fatrat-applet.jar" basedir="${build}/applet" level="9">
@@ -287,7 +323,13 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws,jar-applet">
+	<target name="jar-json" depends="compile-json">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/json.jar" basedir="${build}/json" level="9">
+		</jar>
+	</target>
+	
+	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws,jar-applet,jar-filesonic,jar-metacafe">
 	</target>
 	
 	<target name="clean">
@@ -297,10 +339,12 @@
 	
 	<target name="javadoc">
 		<javadoc packagenames="info.dolezel.fatrat.*"
+		   excludepackagenames="info.dolezel.fatrat.plugins.helpers"
 		   sourcepath="src/core"
            defaultexcludes="yes"
            destdir="docs/"
            use="true"
+           classpathref="classpath"
            windowtitle="FatRat Extension API">
 	   </javadoc>
 	</target>

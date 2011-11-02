@@ -21,10 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 /**
- * Do not subclass this class.
+ * Do not subclass this class directly.
  * @author lubos
  */
 public abstract class TransferPlugin extends Plugin {
+    protected TransferPlugin() {
+    }
+    
     /**
      * You should probably only use the Failed state.
      * Other states are to be set by the user or by the queue manager.

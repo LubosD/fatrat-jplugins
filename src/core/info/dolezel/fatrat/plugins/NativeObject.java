@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package info.dolezel.fatrat.plugins;
 
 /**
- *
+ * Internal class used by FatRat to manage Java object references.
  * @author lubos
  */
 public class NativeObject {

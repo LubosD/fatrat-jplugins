@@ -25,11 +25,18 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * Do not subclass this class.
+ * Do not subclass this class directly.
  * @author lubos
  */
 public abstract class Plugin extends NativeObject {
+    
+    /**
+     * Useful for decoding ByteArrays from {@link #fetchPage}
+     */
     final Charset charsetUtf8 = Charset.forName("UTF-8");
+    
+    protected Plugin() {
+    }
 
     /**
      * Downloads the specified URL.

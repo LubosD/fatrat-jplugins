@@ -22,6 +22,7 @@ package info.dolezel.fatrat.plugins;
 
 import info.dolezel.fatrat.plugins.annotations.SearchPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import info.dolezel.fatrat.plugins.util.FormatUtils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -82,7 +83,7 @@ public class UloztoSearch extends SearchPlugin {
                         String searchData = snippets.getString("snippet--mainSearch");
                         
                         Matcher mName = reLinkAndName.matcher(searchData);
-                        Matcher mSize = reFileSize.matcher(searchData);
+                        Matcher mSize = FormatUtils.getFileSizePattern().matcher(searchData);
                         Matcher mDuration = reDuration.matcher(searchData);
                         List<SearchResult> results = new ArrayList<SearchResult>();
                         

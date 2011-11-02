@@ -30,7 +30,10 @@ import org.apache.commons.io.IOUtils;
  *
  * @author lubos
  */
-public class FileUtils {
+public final class FileUtils {
+    
+    private FileUtils() {
+    }
 
     /**
       * Returns the first line from the file.

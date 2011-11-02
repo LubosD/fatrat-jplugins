@@ -38,4 +38,7 @@ public @interface UploadPluginInfo {
 
     /** Upload file size limit */
     long sizeLimit();
+    
+    /** Whether the upload can be resumed */
+    boolean resumable() default false;
 }

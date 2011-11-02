@@ -19,7 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 package info.dolezel.fatrat.plugins.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,8 +31,11 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-public class FormatUtils {
-    protected static final Pattern reFileSize = Pattern.compile("([\\d\\.,]+)\\s*(b|ki?b|mi?b|gi?b|ti?b|pi?b)", Pattern.CASE_INSENSITIVE);
+public final class FormatUtils {
+    private static final Pattern reFileSize = Pattern.compile("([\\d\\.,]+)\\s*(b|ki?b|mi?b|gi?b|ti?b|pi?b)", Pattern.CASE_INSENSITIVE);
+    
+    private FormatUtils() {
+    }
     
     /**
      * Formats the file size as a string, e.g. 1024 -> 1 KB etc.
@@ -113,4 +120,35 @@ public class FormatUtils {
         
         return (long) result;
     }
+
+    /**
+     * @return The pattern used by {@link #parseSize}.
+     */
+    public static Pattern getFileSizePattern() {
+        return reFileSize;
+    }
+    
+    public static Map<String,String> parseQueryString(String input) {
+        try {
+            Map<String,String> rv = new HashMap<String,String>();
+            String[] parts = input.split("&");
+
+            for (String part : parts) {
+                String[] pair = part.split("=", 2);
+                if (pair.length != 2)
+                    continue;
+                
+                String name = URLDecoder.decode(pair[0], "UTF-8");
+                String value = URLDecoder.decode(pair[1], "UTF-8");
+                
+                rv.put(name, value);
+            }
+            
+            return rv;
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+    
+    
 }

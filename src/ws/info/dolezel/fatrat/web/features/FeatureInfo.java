@@ -137,7 +137,7 @@ public class FeatureInfo {
                 
                 f.type = Feature.FeatureType.UploadPlugin;
                 f.name = ann.name();
-                f.info = "File size limit: " + FormatUtils.formatSize(ann.sizeLimit());
+                f.info = "File size limit: " + FormatUtils.formatSize(ann.sizeLimit()) + "\nResumable: " + ((ann.resumable()) ? "yes" : "no");
                 f.className = cls.getCanonicalName();
                 
                 p.features.add(f);

@@ -24,7 +24,10 @@ package info.dolezel.fatrat.plugins.helpers;
   * For internal use only.
   */
 
-public class GetJavaHome {
+class GetJavaHome {
+    private GetJavaHome() {
+    }
+    
 	public static void main(String[] args) {
 		System.out.println(System.getProperties().getProperty("java.home", null));
 	}

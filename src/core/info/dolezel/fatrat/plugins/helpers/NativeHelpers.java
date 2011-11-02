@@ -43,8 +43,11 @@ import org.apache.commons.io.IOUtils;
  * For internal use only.
  * @author lubos
  */
-public class NativeHelpers {
+class NativeHelpers {
     private static final MyClassLoader loader = new MyClassLoader(Thread.currentThread().getContextClassLoader());
+    
+    private NativeHelpers() {
+    }
 
     static class MyClassLoader extends URLClassLoader {
         public MyClassLoader(ClassLoader parent) {
