@@ -138,13 +138,18 @@
 			<javac srcdir="${src}/plugins/youtube" destdir="${build}/plugins/youtube" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
+	<target name="compile-dailymotion" depends="jar-core">
+			<mkdir dir="${build}/plugins/dailymotion"/>
+			<javac srcdir="${src}/plugins/dailymotion" destdir="${build}/plugins/dailymotion" classpathref="classpath" source="1.6" target="1.6"/>
+	</target>
+	
 	<target name="compile-czshare" depends="jar-core">
 			<mkdir dir="${build}/plugins/czshare"/>
 			<copy file="${src}/plugins/czshare/czshare.xml" todir="${build}/plugins/czshare"/>
 			<javac srcdir="${src}/plugins/czshare" destdir="${build}/plugins/czshare" classpathref="classpath" source="1.6" target="1.6"/>
 	</target>
 	
-	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws,compile-applet,compile-filesonic,compile-metacafe">
+	<target name="compile" depends="compile-core,compile-ulozto,compile-hotfile,compile-fileserve,compile-megaupload,compile-edisk,compile-netload,compile-sharerapid,compile-youtube,compile-czshare,compile-rapidshare,compile-wupload,compile-hellshare,compile-jdproto,compile-ws,compile-applet,compile-filesonic,compile-metacafe,compile-dailymotion">
 	</target>
 	
 	<target name="jar-core" depends="compile-core">
@@ -307,6 +312,16 @@
 		</jar>
 	</target>
 	
+	<target name="jar-dailymotion" depends="compile-dailymotion">
+			<mkdir dir="${dist}"/>
+			<jar destfile="${dist}/fatrat-dailymotion.jar" basedir="${build}/plugins/dailymotion" level="9">
+			<manifest>
+				<attribute name="Implementation-Version" value="${DSTAMP}.1"/>
+				<attribute name="Description" value="Support for video downloads from DailyMotion.com"/>
+			</manifest>
+		</jar>
+	</target>
+	
 	<target name="jar-applet" depends="compile-applet">
 			<mkdir dir="${dist}"/>
 			<jar destfile="${dist}/fatrat-applet.jar" basedir="${build}/applet" level="9">
@@ -329,7 +344,7 @@
 		</jar>
 	</target>
 	
-	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws,jar-applet,jar-filesonic,jar-metacafe">
+	<target name="jar" depends="compile,jar-core,jar-ulozto,jar-hotfile,jar-fileserve,jar-megaupload,jar-edisk,jar-netload,jar-sharerapid,jar-youtube,jar-czshare,jar-rapidshare,jar-wupload,jar-hellshare,jar-jdproto,jar-ws,jar-applet,jar-filesonic,jar-metacafe,jar-dailymotion">
 	</target>
 	
 	<target name="clean">

@@ -24,6 +24,7 @@ import info.dolezel.fatrat.plugins.annotations.ConfigDialog;
 import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.HashMap;
@@ -33,11 +34,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 
 //http://www.youtube.com/watch?v=fyPlhd7BE3w&feature=rec-LGOUT-exp_fresh+div-1r-1-HM
-@DownloadPluginInfo(name = "YouTube.com video download", regexp = "https?://(www\\.)?youtube\\.com/watch.+", forceSingleTransfer = false)
+@DownloadPluginInfo(name = "YouTube.com video download", regexp = "https?://(www\\.)?youtube\\.com/watch.+", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("youtube.xml")
 public class YouTubeDownload extends DownloadPlugin {
     static final Pattern reParamT = Pattern.compile("\"t\": \"([^\"]+)\"");
-    static final Pattern reStreamMap = Pattern.compile("\"fmt_stream_map\": \"([^\"]+)\"");
+    static final Pattern reStreamMap = Pattern.compile("\"url_encoded_fmt_stream_map\": \"([^\"]+)\"");
     static final Pattern reVideoID = Pattern.compile("\"video_id\": \"([^\"]+)\"");
     static final Pattern reTitle = Pattern.compile("<meta name=\"title\" content=\"([^\"]+)\">");
     static final Pattern reUnicodeChar = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
@@ -61,42 +62,58 @@ public class YouTubeDownload extends DownloadPlugin {
                     Matcher m = reParamT.matcher(cb);
 
                     if (!m.find())
-                        throw new Exception("Parse error");
+                        throw new Exception("Parse error #1");
                     t = m.group(1);
 
                     m = reStreamMap.matcher(cb);
                     if (!m.find())
-                        throw new Exception("Parse error");
-                    streamMap = m.group(1);
+                        throw new Exception("Parse error #2");
+                    streamMap = StringEscapeUtils.unescapeJavaScript(m.group(1));
 
                     m = reVideoID.matcher(cb);
                     if (!m.find())
-                        throw new Exception("Parse error");
+                        throw new Exception("Parse error #3");
                     videoID = m.group(1);
 
                     m = reTitle.matcher(cb);
                     if (!m.find())
-                        throw new Exception("Parse error");
+                        throw new Exception("Parse error #4");
                     title = m.group(1);
                     title = StringEscapeUtils.unescapeHtml(title);
+                
+
+                    formatMap = new HashMap<Integer,String>();
+                    String[] fmts = streamMap.split("&");
+                    
+                    System.out.println("Num of fmts: "+fmts.length);
+                    
+                    for (String fmt : fmts) {
+                        
+                        System.out.println("FMT: "+fmt);
+                        
+                        if (!fmt.startsWith("itag="))
+                            continue;
+
+                        String[] tokens = fmt.split(",");
+                        if (tokens.length != 2)
+                            continue;
+
+                        int code = Integer.parseInt(tokens[0].substring(5));
+                        String url = tokens[1].replaceAll("\\\\/", "/").substring(4);
+                        url = URLDecoder.decode(url, "UTF-8");
+                        
+                        System.out.println("URL: "+url);
+
+                        formatMap.put(code, url);
+                    }
+
+                    if (!formatMap.containsKey(18))
+                        formatMap.put(18, "http://www.youtube.com/get_video?fmt=18&video_id="+videoID+"&t="+t+"&asv=3");
+                
                 } catch (Exception e) {
                     setFailed(e.getMessage());
                     return;
                 }
-
-                formatMap = new HashMap<Integer,String>();
-                String[] fmts = streamMap.split(",");
-                for (String fmt : fmts) {
-                    String[] tokens = fmt.split("\\|");
-                    int code = Integer.parseInt(tokens[0]);
-                    String url = tokens[1].replaceAll("\\\\/", "/");
-                    url = StringEscapeUtils.unescapeJavaScript(url);
-
-                    formatMap.put(code, url);
-                }
-
-                if (!formatMap.containsKey(18))
-                    formatMap.put(18, "http://www.youtube.com/get_video?fmt=18&video_id="+videoID+"&t="+t+"&asv=3");
 
                 // Get user's priorities
                 // Std. priorities: WebM, MP4, FLV

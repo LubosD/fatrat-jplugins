@@ -66,7 +66,7 @@ public abstract class SearchPlugin extends Plugin {
     }
     
     /**
-     * @deprecated
+     * @deprecated Replaced by {@link FormatUtils.parseSize}.
      */
     protected static long parseSize(String str) {
         return FormatUtils.parseSize(str);

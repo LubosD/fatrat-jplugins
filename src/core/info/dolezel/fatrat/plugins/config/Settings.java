@@ -64,10 +64,49 @@ public final class Settings {
      */
     public static native Object getValue(String name, Object defValue);
     
+    public static Integer getValueInt(String name, Integer defValue) {
+        Object o = getValue(name, defValue);
+        
+        if (o instanceof Number)
+            return ((Number) o).intValue();
+        else if (o instanceof String) {
+            try {
+                return Integer.parseInt((String) o);
+            } catch (Exception e) {
+                return null;
+            }
+        } else
+            return null;
+    }
+    
     /**
      * Gets an array of values under the key.
      * @param name The key
      * @return An array of values or <code>null</code>.
      */
     public static native Object[] getValueArray(String name);
+    
+    public static int[] getValueArrayInt(String name) {
+        Object[] o = getValueArray(name);
+        
+        if (o == null)
+            return null;
+        
+        int[] rv = new int[o.length];
+        
+        for (int i = 0; i < rv.length; i++) {
+            if (o[i] instanceof String) {
+                try {
+                    rv[i] = Integer.parseInt((String) o[i]);
+                } catch (Exception e) {
+                    return null;
+                }
+            } else if (o[i] instanceof Number) {
+                rv[i] = ((Number) o[i]).intValue();
+            } else
+                return null;
+        }
+        
+        return rv;
+    }
 }

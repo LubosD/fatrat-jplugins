@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@ExtractorPluginInfo(name="FileServe.com link list extractor", regexp="http://www\\.fileserve\\.com/list/.+", transferClass = FileserveDownload.class)
+@ExtractorPluginInfo(name="FileServe.com link list extractor", regexp="http://(www\\.)?fileserve\\.com/list/.+", transferClass = FileserveDownload.class)
 public class FileserveExtractor extends ExtractorPlugin {
 
     static final Pattern reLink = Pattern.compile("<a href=\"(/file/[^\"]+)\" class=\"sheet_icon wbold\">");

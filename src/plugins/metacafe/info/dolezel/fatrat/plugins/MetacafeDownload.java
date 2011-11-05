@@ -19,7 +19,7 @@ import org.json.JSONObject;
  *
  * @author lubos
  */
-@DownloadPluginInfo(name = "MetaCafe.com video download", regexp = "http://www\\.metacafe\\.com/watch/.+")
+@DownloadPluginInfo(name = "MetaCafe.com video download", regexp = "http://www\\.metacafe\\.com/watch/.+", forceSingleTransfer = false, truncIncomplete = false)
 public class MetacafeDownload extends DownloadPlugin {
     static final Pattern reFlashVars = Pattern.compile("<param id=\"flashVars\" name=\"flashvars\" value=\"([^\"]+)\"");
 

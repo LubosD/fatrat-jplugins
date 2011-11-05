@@ -25,12 +25,16 @@ import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.ReCaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import info.dolezel.fatrat.plugins.util.ByteBufferInputStream;
 import info.dolezel.fatrat.plugins.util.FormatUtils;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Extend this class to create a new download plugin.
@@ -96,11 +100,44 @@ public abstract class DownloadPlugin extends TransferPlugin {
 	protected final native void startWait(int seconds, WaitListener cb);
 
     /**
-     * Ask FatRat to solve a captcha image
+     * Ask FatRat to solve a captcha image.
+     * See the description of {@link #solveCaptchaLoadLocally} before using this method.
      * @param url URL of the image
      * @param cb Callback with the result
      */
-    protected native void solveCaptcha(String url, CaptchaListener cb);
+    protected final native void solveCaptcha(String url, CaptchaListener cb);
+    
+    /**
+     * If the captcha image URL depends on the IP address, cookies or other circumstances
+     * that won't exist if that URL is loaded in a different environment or location,
+     * use this method instead of {@link #solveCaptcha}.
+     * @param url URL of the image
+     * @param cb Callback with the result
+     */
+    protected void solveCaptchaLoadLocally(String url, final CaptchaListener cb) {
+        fetchPage(url, new PageFetchListener() {
+
+            @Override
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                String type;
+                if (headers.containsKey("content-type"))
+                    type = headers.get("content-type");
+                else
+                    type = "";
+
+                byte[] b = new byte[buf.remaining()];
+                buf.get(b);
+
+                String encodedImage = "data:"+type+";base64," + Base64.encodeBase64String(b);
+                solveCaptcha(encodedImage, cb);
+            }
+
+            @Override
+            public void onFailed(String error) {
+                cb.onFailed();
+            }
+        });
+    }
     
     protected void solveReCaptcha(String code, final ReCaptchaListener cl) {
         fetchPage("http://www.google.com/recaptcha/api/challenge?k="+code+"&ajax=1", new PageFetchListener() {
@@ -154,7 +191,7 @@ public abstract class DownloadPlugin extends TransferPlugin {
 
     /**
      * Formats the time in seconds into a user friendly string.
-     * @deprecated
+     * @deprecated Replaced by {@link FormatUtils.formatTime}.
      */
     public static String formatTime(int seconds) {
         return FormatUtils.formatTime(seconds);

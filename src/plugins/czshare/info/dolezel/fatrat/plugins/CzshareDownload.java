@@ -17,136 +17,142 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-
 package info.dolezel.fatrat.plugins;
 
-import info.dolezel.fatrat.plugins.annotations.ConfigDialog;
 import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
+import info.dolezel.fatrat.plugins.extra.URLAcceptableFilter;
+import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import info.dolezel.fatrat.plugins.util.FormatUtils;
 import info.dolezel.fatrat.plugins.util.PostQuery;
-import info.dolezel.fatrat.plugins.util.XmlUtils;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.commons.lang.StringUtils;
 
-@DownloadPluginInfo(name = "CZshare.com premium download", regexp = "http://(www\\.)?czshare\\.com/(\\d+/.+|download_file\\.php\\?id=(\\d+)&file=(.+))", forceSingleTransfer = false)
-@ConfigDialog("czshare.xml")
-public class CzshareDownload extends DownloadPlugin {
-    static final Pattern reOldUrl = Pattern.compile("http://(www\\.)?czshare\\.com/download_file\\.php\\?id=(\\d+)&file=(.+)");
-    static final Pattern reNewUrl = Pattern.compile("http://(www\\.)?czshare\\.com/(\\d+)/(.+)/(.+)");
-    static final Map<Long,String> convertedLinks = new HashMap<Long,String>();
-
-    String link, username, password, linkCode;
-    long linkId;
+/**
+ *
+ * @author lubos
+ */
+@DownloadPluginInfo(name = "CZshare.com FREE download")
+public class CzshareDownload extends DownloadPlugin implements URLAcceptableFilter {
+    static private final Pattern reHidden = Pattern.compile("<input type=\"hidden\" name=\"([^\"]+)\" value=\"([^\"]+)\"");
+    static private final String strAlreadyDownloading = "Z Vaší IP adresy momentálně";
 
     @Override
-    public void processLink(String link) {
-        Matcher mOld = reOldUrl.matcher(link);
-        if (mOld.matches()) {
-            String fileName = mOld.group(3);
-            link = "http://czshare.com/" + mOld.group(2) + "/" + fileName;
-            linkId = Long.parseLong(mOld.group(2));
-            reportFileName(fileName);
-        } else {
-            Matcher mNew = reNewUrl.matcher(link);
-            if (mNew.matches()) {
-                linkId = Long.parseLong(mNew.group(2));
-                linkCode = mNew.group(3);
-                reportFileName(mNew.group(4));
-            } else {
-                setFailed("Unsupported link");
-            }
+    public void processLink(final String link) {
+        long id = 0;
+        
+        Matcher m = CzsharePremiumDownload.reNewUrl.matcher(link);
+        if (m.matches())
+            id = Long.parseLong(m.group(2));
+        
+        if (id == 0) {
+            m = CzsharePremiumDownload.reOldUrl.matcher(link);
+            if (m.matches())
+                id = Long.parseLong(m.group(2));
         }
-
-        this.link = link;
-
-        username = (String) Settings.getValue("czshare/username", null);
-        password = (String) Settings.getValue("czshare/password", null);
-
-        if (isEmpty(username) || isEmpty(password)) {
-            setFailed("Premium account information required");
+        
+        if (id == 0) {
+            m = CzsharePremiumDownload.reNewUrl2.matcher(link);
+            if (m.matches())
+                id = Long.parseLong(m.group(2));
+        }
+        
+        if (id == 0) {
+            setFailed("Unsupported URL");
             return;
         }
+            
+        String downloadPage = "http://czshare.com/download.php?id=" + id;
 
-        getLink(true);
-    }
+        fetchPage(downloadPage, new PageFetchListener() {
 
-    private void getLink(boolean login) {
-        fetchPage("http://czshare.com/mulup/show_profi_links.php", new PageFetchListener() {
-
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                try {
-                    Document doc = XmlUtils.loadDocument(buf);
+                CharBuffer cb = charsetUtf8.decode(buf);
+                
+                if (cb.toString().contains(strAlreadyDownloading)) {
+                    startWait(30, new WaitListener() {
 
-                    Node error = XmlUtils.xpathNode(doc, "/new_up/error");
-                    if (error != null)
-                        throw new Exception(error.getTextContent());
-
-                    synchronized(convertedLinks) {
-                        NodeList list = XmlUtils.xpathNodeList(doc, "/new_up/soubor");
-                        convertedLinks.clear();
+                        @Override
+                        public void onSecondElapsed(int secondsLeft) {
+                            if (secondsLeft > 0)
+                                setMessage("Waiting, will retry in "+FormatUtils.formatTime(secondsLeft));
+                            else
+                                processLink(link);
+                        }
                         
-                        for (int i = 0; i < list.getLength(); i++) {
-                            Node n = list.item(i);
-                            long id = Long.parseLong(XmlUtils.xpathString(n, "id/text()"));
-                            String link = XmlUtils.xpathString(n, "odkaz/text()");
+                    });
+                }
+                
+                PostQuery pq = new PostQuery();
+                Matcher m = reHidden.matcher(cb);
+                
+                while (m.find())
+                    pq.add(m.group(1), m.group(2));
+                
+                captchaStep(pq);
+            }
 
-                            System.out.println("ID: "+id+", link: "+link);
+            @Override
+            public void onFailed(String error) {
+                setFailed(error);
+            }
 
-                            convertedLinks.put(id, link);
-                        }
+        });
+    }
+    
+    private void captchaStep(final PostQuery pq) {
+        this.solveCaptchaLoadLocally("http://czshare.com/captcha.php", new CaptchaListener() {
 
-                        if (convertedLinks.containsKey(linkId)) {
-                            startDownload(convertedLinks.get(linkId));
-                            return;
-                        }
+            @Override
+            public void onFailed() {
+                setFailed("Failed to solive captcha");
+            }
+
+            @Override
+            public void onSolved(String text) {
+                pq.add("captchastring2", text).add("freedown", "Ověřit a stáhnout");
+                
+                fetchPage("http://czshare.com/download.php", new PageFetchListener() {
+
+                    @Override
+                    public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                        if (!headers.containsKey("location"))
+                            setFailed("Download failed, invalid captcha?");
+                        else
+                            startDownload(headers.get("location"));
+                    }
+
+                    @Override
+                    public void onFailed(String error) {
+                        setFailed(error);
                     }
                     
-                    convertLink();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    setFailed(ex.toString() + " - " + ex.getMessage());
-                }
+                }, pq.toString());
             }
-
-            public void onFailed(String error) {
-                setFailed(error);
-            }
-
-        }, (login) ? new PostQuery().add("jmeno", username).add("heslo", password).toString() : "");
+        });
     }
 
-    private void convertLink() {
-        fetchPage("http://czshare.com/mulup/new_link.php", new PageFetchListener() {
+    @Override
+    public int acceptable(String url) {
+        Matcher m = CzsharePremiumDownload.reMainRegExp.matcher(url);
+        String usr = (String) Settings.getValue("czshare/username", null);
+        String pwd = (String) Settings.getValue("czshare/password", null);
 
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                try {
-                    Document doc = XmlUtils.loadDocument(buf);
-                    Node error = XmlUtils.xpathNode(doc, "/new_up/error");
-                    if (error != null)
-                        throw new Exception(error.getTextContent());
-
-                    getLink(false);
-                } catch (Exception ex) {
-                    setFailed(ex.getMessage());
-                }
-            }
-
-            public void onFailed(String error) {
-                setFailed(error);
-            }
-
-        }, new PostQuery().add("id", Long.toString(linkId)).add("kod", linkCode).toString());
+        boolean hasPremium = !StringUtils.isEmpty(usr) && !StringUtils.isEmpty(pwd);
+            
+        if (!m.matches())
+            return 0;
+        else if (hasPremium)
+            return 2;
+        else
+            return 3;
     }
-
-    private static boolean isEmpty(String str) {
-        return str == null || str.isEmpty();
-    }
-
+    
 }
