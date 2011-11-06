@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * @author lubos
  */
 public final class FormatUtils {
-    private static final Pattern reFileSize = Pattern.compile("([\\d\\.,]+)\\s*(b|ki?b|mi?b|gi?b|ti?b|pi?b)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern reFileSize = Pattern.compile("(\\d+[\\d\\.,]+)\\s*(b|ki?b|mi?b|gi?b|ti?b|pi?b)", Pattern.CASE_INSENSITIVE);
     
     private FormatUtils() {
     }
