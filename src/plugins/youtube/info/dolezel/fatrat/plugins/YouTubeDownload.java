@@ -83,28 +83,30 @@ public class YouTubeDownload extends DownloadPlugin {
                 
 
                     formatMap = new HashMap<Integer,String>();
-                    String[] fmts = streamMap.split("&");
+                    String[] fmts = streamMap.split(",");
                     
                     System.out.println("Num of fmts: "+fmts.length);
                     
                     for (String fmt : fmts) {
-                        
-                        System.out.println("FMT: "+fmt);
-                        
-                        if (!fmt.startsWith("itag="))
-                            continue;
 
-                        String[] tokens = fmt.split(",");
-                        if (tokens.length != 2)
+                        String[] tokens = fmt.split("&");
+                        if (tokens.length < 2)
                             continue;
-
-                        int code = Integer.parseInt(tokens[0].substring(5));
-                        String url = tokens[1].replaceAll("\\\\/", "/").substring(4);
-                        url = URLDecoder.decode(url, "UTF-8");
                         
+                        String url = null;
+                        int code = 0;
+                        
+                        for (String tok : tokens) {
+                            if (tok.startsWith("url="))
+                                url = URLDecoder.decode(tok.substring(4), "UTF-8");
+                            else if (tok.startsWith("itag="))
+                                code = Integer.parseInt(tok.substring(5));
+                        }
+
                         System.out.println("URL: "+url);
 
-                        formatMap.put(code, url);
+                        if (url != null && code != 0)
+                            formatMap.put(code, url);
                     }
 
                     if (!formatMap.containsKey(18))
