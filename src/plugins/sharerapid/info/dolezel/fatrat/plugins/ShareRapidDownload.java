@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
 
-@DownloadPluginInfo(name = "Share-rapid.com FREE download", regexp = "http://(share-rapid\\.com|sharerapid.cz)/stahuj/\\d+/.+", forceSingleTransfer = false)
+@DownloadPluginInfo(name = "Share-rapid.com download", regexp = "http://(share-rapid\\.com|sharerapid.cz)/stahuj/.+", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("share-rapid.xml")
 public class ShareRapidDownload extends DownloadPlugin {
 
@@ -52,6 +52,7 @@ public class ShareRapidDownload extends DownloadPlugin {
 
          */
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
 
@@ -63,6 +64,7 @@ public class ShareRapidDownload extends DownloadPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to check the link");
             }

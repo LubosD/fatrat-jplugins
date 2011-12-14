@@ -24,7 +24,9 @@ import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
+import info.dolezel.fatrat.plugins.util.FormatUtils;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -36,7 +38,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@DownloadPluginInfo(regexp = "http://www\\.fileserve\\.com/file/.+", name = "FileServe.com FREE download")
+@DownloadPluginInfo(regexp = "http://(www\\.)?fileserve\\.com/file/.+", name = "FileServe.com FREE download")
 public class FileserveDownload extends DownloadPlugin {
 
     static final Pattern reCaptchaKey = Pattern.compile("var reCAPTCHA_publickey='([^']+)';");
@@ -53,6 +55,7 @@ public class FileserveDownload extends DownloadPlugin {
 
         this.fetchPage(link, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 final Matcher mKey = reCaptchaKey.matcher(cb);
@@ -78,6 +81,7 @@ public class FileserveDownload extends DownloadPlugin {
                 setMessage("Sending AJAX request #1");
                 fetchPage(link, new PageFetchListener() {
 
+                    @Override
                     public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                         CharBuffer cb = charsetUtf8.decode(buf);
                         String s = cb.toString();
@@ -90,12 +94,14 @@ public class FileserveDownload extends DownloadPlugin {
                             captchaStepRC(link, mKey.group(1));
                     }
 
+                    @Override
                     public void onFailed(String error) {
                         setFailed(error);
                     }
                 }, "checkDownload=check");
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
@@ -105,6 +111,7 @@ public class FileserveDownload extends DownloadPlugin {
     private void detectLongWaitingTime(final String link) {
         fetchPage(link, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher m = reLongWait.matcher(cb);
@@ -114,9 +121,10 @@ public class FileserveDownload extends DownloadPlugin {
                     int secs = Integer.parseInt(m.group(1));
                     startWait(secs, new WaitListener() {
 
+                        @Override
                         public void onSecondElapsed(int secondsLeft) {
                             if (secondsLeft > 0)
-                                setMessage("Waiting: " + DownloadPlugin.formatTime(secondsLeft) + " left until next attempt");
+                                setMessage("Waiting: " + FormatUtils.formatTime(secondsLeft) + " left until next attempt");
                             else
                                 processLink(link);
                         }
@@ -124,6 +132,7 @@ public class FileserveDownload extends DownloadPlugin {
                  }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to determine the wait time: "+error);
             }
@@ -134,6 +143,7 @@ public class FileserveDownload extends DownloadPlugin {
     private void captchaStepRC(final String link, final String rcCode) {
         fetchPage("http://www.google.com/recaptcha/api/challenge?k="+rcCode+"&ajax=1", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher m = reImageCode.matcher(cb);
@@ -144,10 +154,12 @@ public class FileserveDownload extends DownloadPlugin {
                     FileserveDownload.this.solveCaptcha("http://www.google.com/recaptcha/api/image?c="+lcode,
                             new CaptchaListener() {
 
+                        @Override
                         public void onFailed() {
                             setFailed("Failed to decode captcha");
                         }
 
+                        @Override
                         public void onSolved(String text) {
                             try {
                                 StringBuilder sb = new StringBuilder();
@@ -163,6 +175,7 @@ public class FileserveDownload extends DownloadPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to load the captcha page #2: "+error);
             }
@@ -172,9 +185,18 @@ public class FileserveDownload extends DownloadPlugin {
 
     private void captchaSendStep(final String link, String postData) {
         setMessage("Sending captcha response");
+        
+        String host;
+        try {
+            host = new URL(link).getHost();
+        } catch (Exception e) {
+            setFailed(e.toString());
+            return;
+        }
 
-        this.fetchPage("http://www.fileserve.com/checkReCaptcha.php", new PageFetchListener() {
+        this.fetchPage("http://"+host+"/checkReCaptcha.php", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 // TODO: check for {"success":1} ?
                 CharBuffer cb = charsetUtf8.decode(buf);
@@ -190,6 +212,7 @@ public class FileserveDownload extends DownloadPlugin {
 
                 fetchPage(link, new PageFetchListener() {
 
+                    @Override
                     public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                         try {
                             byte[] num = new byte[buf.capacity()];
@@ -203,25 +226,28 @@ public class FileserveDownload extends DownloadPlugin {
                             int secs = Integer.parseInt(new String(num, offset, num.length - offset, "UTF-8"));
                             FileserveDownload.this.startWait(secs+2, new WaitListener() {
 
+                                @Override
                                 public void onSecondElapsed(int secondsLeft) {
                                     if (secondsLeft > 0) {
-                                        setMessage("Waiting: " + DownloadPlugin.formatTime(secondsLeft) + " left");
+                                        setMessage("Waiting: " + FormatUtils.formatTime(secondsLeft) + " left");
                                     } else {
                                         downloadStep(link);
                                     }
                                 }
                             });
-                        } catch (UnsupportedEncodingException ex) {
+                        } catch (Exception ex) {
                             setFailed(ex.toString());
                         }
                     }
 
+                    @Override
                     public void onFailed(String error) {
                         setFailed("Failed to send the AJAX request #2: "+error);
                     }
                 }, "downloadLink=wait");
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to submit the captcha response: "+error);
             }
@@ -233,11 +259,13 @@ public class FileserveDownload extends DownloadPlugin {
 
         fetchPage(link, new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
 
                 setMessage("Sending AJAX request #4");
                 fetchPage(link, new PageFetchListener() {
 
+                    @Override
                     public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                         CharBuffer cb = charsetUtf8.decode(buf);
                         System.out.println(cb.toString());
@@ -251,6 +279,7 @@ public class FileserveDownload extends DownloadPlugin {
                         }
                     }
 
+                    @Override
                     public void onFailed(String error) {
                         setFailed("Failed to send the AJAX request #4: "+error);
                     }
@@ -258,6 +287,7 @@ public class FileserveDownload extends DownloadPlugin {
                 }, "download=normal");
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed("Failed to send the AJAX request #3: "+error);
             }

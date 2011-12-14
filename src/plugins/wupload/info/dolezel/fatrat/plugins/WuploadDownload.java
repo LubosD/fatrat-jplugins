@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  *
  * @author lubos
  */
-@DownloadPluginInfo(name = "Wupload.com download", regexp = "http://www\\.wupload\\.com/file/.+")
+@DownloadPluginInfo(name = "Wupload.com download", regexp = "http://(www\\.)?wupload\\.com/file/.+")
 public class WuploadDownload extends DownloadPlugin {
     static final Pattern reWaitTime = Pattern.compile("var countDownDelay = (\\d+)");
     static final Pattern reCaptchaCode = Pattern.compile("Recaptcha.create\\(\"([^\"]+)\"");

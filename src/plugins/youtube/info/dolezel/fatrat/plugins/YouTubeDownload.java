@@ -59,6 +59,13 @@ public class YouTubeDownload extends DownloadPlugin {
                 Map<Integer,String> formatMap;
 
                 try {
+                    String redir = headers.get("Location");
+                    if (redir != null) {
+                        if (redir.startsWith("http://www.youtube.com/verify_age"))
+                            throw new Exception("Adult videos not supported at the moment");
+                        throw new Exception("Unsupported redirect - "+redir);
+                    }
+                    
                     Matcher m = reParamT.matcher(cb);
 
                     if (!m.find())
