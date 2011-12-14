@@ -105,9 +105,32 @@ public class TransferModel implements TableModel {
                 
                 return text;
             }
-            case 5:
+            case 5: {
                 // ETA
-                return "";
+                if (!state.equals("Active") && !state.equals("ForcedActive"))
+                    return "";
+                
+                Object[] speeds = (Object[]) map.get("speeds");
+                long total = (Long) map.get("total");
+                long done = (Long) map.get("done");
+                long rem = total - done;
+                int speed;
+                
+                if (done <= 0)
+                    return "";
+                
+                if ( (primaryMode.equals("Download") && mode.equals("Download"))) {
+                    speed = (Integer) speeds[0];
+                } else if (primaryMode.equals("Upload"))
+                    speed = (Integer) speeds[1];
+                else
+                    return "";
+                
+                if (speed == 0)
+                    return "∞";
+                
+                return Util.formatTime((int) rem / speed);
+            }
             case 6:
                 return map.get("message").toString();
             
@@ -152,16 +175,12 @@ public class TransferModel implements TableModel {
             return;
         
         if (lastSize > 0) {
+            if (data.length > lastSize)
+                ev2 = new TableModelEvent(this, lastSize-1, data.length-1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
+            else if (data.length < lastSize)
+                ev2 = new TableModelEvent(this, data.length-1, lastSize-1, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
             if (data.length > 0)
                 ev1 = new TableModelEvent(this, 0, Math.min(data.length, lastSize));
-
-            /*if (data.length != lastSize) {
-                if (data.length > lastSize)
-                    ev2 = new TableModelEvent(this, lastSize-1, data.length-1, TableModelEvent.INSERT);
-                else
-                    ev1 = new TableModelEvent(this, 0, Math.min(data.length, lastSize)-1);
-                lastSize = data.length;
-            }*/
         } else
             ev1 = new TableModelEvent(this);
         

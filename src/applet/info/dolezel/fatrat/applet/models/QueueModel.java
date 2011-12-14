@@ -7,6 +7,7 @@ package info.dolezel.fatrat.applet.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.swing.ComboBoxModel;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;

@@ -11,6 +11,8 @@
 package info.dolezel.fatrat.applet;
 
 import info.dolezel.fatrat.applet.components.SpeedGraph;
+import info.dolezel.fatrat.applet.data.TransferClass;
+import info.dolezel.fatrat.applet.dialogs.NewTransfer;
 import info.dolezel.fatrat.applet.models.QueueModel;
 import info.dolezel.fatrat.applet.models.TransferModel;
 import info.dolezel.fatrat.applet.models.data.NameAndState;
@@ -19,12 +21,15 @@ import info.dolezel.fatrat.applet.models.renderers.ProgressRenderer;
 import info.dolezel.fatrat.applet.models.renderers.SpeedIconRenderer;
 import info.dolezel.fatrat.applet.settings.AppletSettings;
 import info.dolezel.fatrat.applet.util.TrustAllCertificates;
+import java.awt.Cursor;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -33,6 +38,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,6 +48,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
@@ -49,6 +57,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.commons.io.IOUtils;
@@ -69,6 +78,7 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
     QueueModel queueModel;
     TransferModel transferModel;
     String baseURL;
+    TransferClass[] transferClasses;
     
     SpeedGraph graphTransfer, graphQueue;
     String lastGlobalLog, lastTransferLog;
@@ -212,6 +222,7 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
 
             });
             setupXmlRpc();
+            loadTransferClasses();
             
             // Setup UI updating
             ActionListener timerListener = new RegularUpdateListener();
@@ -260,6 +271,24 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
         
         client = new XmlRpcClient();
         client.setConfig(config);
+    }
+    
+    private void loadTransferClasses() {
+        try {
+            Object[] list = (Object[]) client.execute("getTransferClasses", new Object[0]);
+            transferClasses = new TransferClass[list.length];
+            
+            for (int i = 0; i < list.length; i++) {
+                Map<String,String> props = (Map<String,String>) list[i];
+                transferClasses[i] = new TransferClass();
+                
+                transferClasses[i].setMode(props.get("mode"));
+                transferClasses[i].setShortName(props.get("shortName"));
+                transferClasses[i].setLongName(props.get("longName"));
+            }
+        } catch (XmlRpcException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex);
+        }
     }
     
     @Override
@@ -566,6 +595,11 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
         actionAdd.setMaximumSize(new java.awt.Dimension(24, 24));
         actionAdd.setMinimumSize(new java.awt.Dimension(24, 24));
         actionAdd.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        actionAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actionAddActionPerformed(evt);
+            }
+        });
         toolbar.add(actionAdd);
 
         buttonDelete.setAction(actionRemove);
@@ -850,6 +884,15 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
         if (src.equals(buttonDeleteWithData))
             withData = true;
         
+        String question;
+        if (withData)
+            question = "Do you really want to delete the selected transfers including the data?";
+        else
+            question = "Do you really want to delete the selected transfers?";
+        
+        if (JOptionPane.showConfirmDialog(rootPane, question, "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION)
+            return;
+        
         removeTransfers(withData);
     }//GEN-LAST:event_actionRemove
 
@@ -951,6 +994,73 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
             transferPopupMenu.show(transfers, evt.getX(), evt.getY());
         }
     }//GEN-LAST:event_transfersMouseClicked
+
+    private void actionAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionAddActionPerformed
+        NewTransfer dlg = new NewTransfer(Frame.getFrames()[0], true);
+        
+        dlg.setQueueModel(queueModel);
+        dlg.setTransferClasses(transferClasses);
+        dlg.setVisible(true);
+        
+        if (dlg.getReturnStatus() != NewTransfer.RET_OK)
+            return;
+        
+        List<String> urls = new LinkedList<String>(Arrays.asList(dlg.getURLs()));
+        List<File> files = new ArrayList<File>();
+        
+        if (urls.isEmpty())
+            return;
+        
+        // Files need to be transferred separately
+        for (Iterator<String> it = urls.iterator(); it.hasNext(); ) {
+            String url = it.next();
+            if (url.startsWith("local://")) {
+                files.add(new File(url.substring(8)));
+                it.remove();
+            }
+        }
+        
+        try {
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          
+            // Send URLs
+            if (!urls.isEmpty()) {
+                Object[] msg = new Object[8];
+                msg[0] = false; // Download
+                msg[1] = dlg.getQueueUUID();
+                msg[2] = urls.toArray(new String[urls.size()]);
+                msg[3] = dlg.getTransferClass();
+                msg[4] = dlg.getTargetDirectory();
+                msg[5] = dlg.addPaused();
+                msg[6] = dlg.getDownSpeedLimit();
+                msg[7] = dlg.getUpSpeedLimit();
+                
+                client.execute("Queue.addTransfers", msg);
+            }
+            
+            // Send files
+            for (File f : files) {
+                Object[] msg = new Object[9];
+                msg[0] = false; // Download
+                msg[1] = dlg.getQueueUUID();
+                msg[2] = f.getName();
+                msg[3] = IOUtils.toByteArray(new FileInputStream(f));
+                msg[4] = dlg.getTransferClass();
+                msg[5] = dlg.getTargetDirectory();
+                msg[6] = dlg.addPaused();
+                msg[7] = dlg.getDownSpeedLimit();
+                msg[8] = dlg.getUpSpeedLimit();
+                
+                client.execute("Queue.addTransferWithData", msg);
+            }
+            
+            reloadData();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(rootPane, e, "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            this.setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_actionAddActionPerformed
 
     public void changeState(String state) {
         final List<String> uuid1 = new ArrayList<String>(transfers.getSelectedRowCount());
