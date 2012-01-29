@@ -1163,6 +1163,7 @@ public class FatRatApplet extends javax.swing.JApplet implements IconLoader {
             
             @Override
             protected void done() {
+                transfers.getSelectionModel().clearSelection();
                 reloadData();
             }
         };

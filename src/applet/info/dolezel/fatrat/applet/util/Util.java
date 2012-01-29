@@ -54,4 +54,11 @@ public class Util {
     public static String singleDecimalDigit(double d) {
         return new DecimalFormat("#.#").format(d);
     }
+    
+    public static String shortenText(String text, int chars) {
+        if (text.length() <= chars)
+            return text;
+        else
+            return text.substring(0, chars-1) + "…";
+    }
 }

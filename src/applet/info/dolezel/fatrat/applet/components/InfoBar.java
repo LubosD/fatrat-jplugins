@@ -79,11 +79,12 @@ public class InfoBar extends javax.swing.JFrame implements SettingsListener, Act
         setResizable(false);
         setType(java.awt.Window.Type.POPUP);
         setUndecorated(true);
-        getContentPane().setLayout(new java.awt.GridLayout());
+        getContentPane().setLayout(new java.awt.GridLayout(1, 0));
 
         label.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         label.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         label.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        label.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         label.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 labelMouseClicked(evt);
@@ -166,7 +167,7 @@ public class InfoBar extends javax.swing.JFrame implements SettingsListener, Act
                     boolean isActive = state.equals("Active") || state.equals("ForcedActive");
                     
                     sb.append("<html><font color=blue>N:</font> ");
-                    sb.append(map.get("name"));
+                    sb.append(Util.shortenText(map.get("name").toString(), 25));
                     sb.append(" | ");
                     sb.append("<font color=blue>P:</font> ");
                     
