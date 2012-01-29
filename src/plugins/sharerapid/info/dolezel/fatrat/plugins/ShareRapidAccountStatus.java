@@ -33,6 +33,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
         
         fetchPage("http://share-rapid.com/prihlaseni/", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher m = reHidden.matcher(cb);
@@ -45,6 +46,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
                 login(m.group(1), user, password);
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
@@ -59,6 +61,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
     private void fetchState() {
         fetchPage("http://share-rapid.com/mujucet/", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Matcher m = reBalance.matcher(cb);
@@ -71,6 +74,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
@@ -80,6 +84,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
     private void login(String hash, String user, String password) {
         fetchPage("http://share-rapid.com/prihlaseni/", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 if (!headers.containsKey("location"))
                     setFailed("Failed to log in");
@@ -87,6 +92,7 @@ public class ShareRapidAccountStatus extends AccountStatusPlugin {
                     fetchState();
             }
 
+            @Override
             public void onFailed(String error) {
                 setFailed(error);
             }
