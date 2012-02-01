@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2012 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,19 +23,15 @@ package info.dolezel.fatrat.plugins;
 import info.dolezel.fatrat.plugins.annotations.SearchPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.util.FormatUtils;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.json.JSONObject;
 
 /**
  *
@@ -44,7 +40,8 @@ import org.json.JSONObject;
 @SearchPluginInfo(name = "Ulož.to")
 public class UloztoSearch extends SearchPlugin {
     private static final Pattern reLinkAndName = Pattern.compile("<a class=\"name\" href=\"([^\"]+)\" title=\"([^\"]+)\"");
-    private static final Pattern reDuration = Pattern.compile("(\\d\\d:\\d\\d(:\\d\\d)?) \\|");
+    private static final Pattern reSizeAndDuration = Pattern.compile("<span class=\"fileSize\">(.+)");
+    private static final Pattern reDuration = Pattern.compile("<span class=\"fileTime\">([^<]+)</span>");
 
     @Override
     public void search(final String query) {
@@ -53,7 +50,30 @@ public class UloztoSearch extends SearchPlugin {
 
                 @Override
                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                    realSearch(query);
+                    CharBuffer cb = charsetUtf8.decode(buf);
+                    List<SearchResult> results = new ArrayList<SearchResult>();
+                    
+                    Matcher mSD = reSizeAndDuration.matcher(cb);
+                    while (mSD.find()) {
+                        SearchResult sr = new SearchResult();
+                        Matcher mDuration = reDuration.matcher(mSD.group(1));
+                        
+                        sr.fileSize = FormatUtils.parseSize(mSD.group(1));
+                        
+                        if (mDuration.find())
+                            sr.extraInfo = "Duration: " + mDuration.group(1);
+                        
+                        Matcher mName = reLinkAndName.matcher(cb);
+                        if (!mName.find(mSD.end()))
+                            break;
+                        
+                        sr.name = StringEscapeUtils.unescapeHtml(mName.group(2));
+                        sr.url = "http://www.uloz.to" + StringEscapeUtils.unescapeHtml(mName.group(1));
+                        
+                        results.add(sr);
+                    }
+                    
+                    searchDone(results);
                 }
 
                 @Override
@@ -66,61 +86,4 @@ public class UloztoSearch extends SearchPlugin {
             searchFailed();
         }
     }
-    
-    public void realSearch(String query) {
-        try {
-            String url = "http://www.uloz.to/hledej/?q="+URLEncoder.encode(query, "UTF-8")+"&disclaimer=1&do=ajaxSearch";
-            
-            fetchPage(url, new PageFetchListener() {
-
-                @Override
-                public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                    try {
-                        CharBuffer cb = charsetUtf8.decode(buf);
-                        
-                        JSONObject obj = new JSONObject(cb.toString());
-                        JSONObject snippets = obj.getJSONObject("snippets");
-                        String searchData = snippets.getString("snippet--mainSearch");
-                        
-                        Matcher mName = reLinkAndName.matcher(searchData);
-                        Matcher mSize = FormatUtils.getFileSizePattern().matcher(searchData);
-                        Matcher mDuration = reDuration.matcher(searchData);
-                        List<SearchResult> results = new ArrayList<SearchResult>();
-                        
-                        while (mName.find()) {
-                            SearchResult sr = new SearchResult();
-                            sr.name = mName.group(2);
-                            
-                            sr.url = mName.group(1);
-                            if (sr.url.startsWith("/live"))
-                                sr.url = sr.url.substring(5);
-                            sr.url = StringEscapeUtils.unescapeHtml(sr.url);
-                            sr.url = "http://www.uloz.to" + sr.url;
-                            
-                            if (!mSize.find(mName.end()))
-                                continue;
-                            
-                            if (mDuration.find(mName.end()) && mDuration.start() - mName.end() < 300)
-                                sr.extraInfo = "Duration: " + mDuration.group(1);
-                            
-                            sr.fileSize = parseSize(mSize.group());
-                            results.add(sr);
-                        }
-                        
-                        searchDone(results);
-                    } catch (Exception ex) {
-                        searchFailed();
-                    }
-                }
-
-                @Override
-                public void onFailed(String error) {
-                    searchFailed();
-                }
-            }, null, Collections.singletonMap("X-Requested-With", "XMLHttpRequest"));
-        } catch (UnsupportedEncodingException ex) {
-            searchFailed();
-        }
-    }
-    
 }

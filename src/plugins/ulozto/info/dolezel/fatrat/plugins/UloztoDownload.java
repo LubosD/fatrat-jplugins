@@ -47,10 +47,10 @@ import java.util.Collections;
 public class UloztoDownload extends DownloadPlugin {
 
     static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
-    static final Pattern reAction = Pattern.compile("<form name=\"dwn\" action=\"([^\"]+)\"");
-    static final Pattern reFileName = Pattern.compile("<h2 class=\"nadpis\" style=\"[^\"]+\"><a href=\"[^\"]+\">([^\"]+)</a></h2>");
-    static final Pattern rePremiumLink = Pattern.compile("href=\"([^\"]+)\" class=\"linkVip\"");
-    static final Pattern rePremiumDataLeft = Pattern.compile("class=\"coins\" title=\"[^\"]+\">([^<]+)<");
+    static final Pattern reAction = Pattern.compile("<form action=\"([^\"]+)\" method=\"post\" id=\"frm-downloadDialog-freeDownloadForm\"");
+    static final Pattern reFileName = Pattern.compile("<a href=\"#download\" class=\"jsShowDownload\">([^\"]+)</a>");
+    static final Pattern rePremiumLink = Pattern.compile("<div class=\"downloadForm\"><form action=\"([^\"]+)\" method=\"post\" id=\"frm-downloadDialog-downloadForm\">");
+    static final Pattern rePremiumDataLeft = Pattern.compile("<li class=\"menu-kredit\"><a href=\"/kredit/\" title=\"[^\"]+\">([^\"]+)</a>");
 
     static RememberedCaptcha rememberedCaptcha;
     
@@ -97,21 +97,21 @@ public class UloztoDownload extends DownloadPlugin {
                     
                     String user = (String) Settings.getValue("ulozto/user", "");
 
-                    if (!user.isEmpty() && mPremium.find()) {
+                    if (cb.toString().contains("Nemáš dostatek kreditu"))
+                        setMessage("Credit depleted, using FREE download");
+                    else if (!user.isEmpty() && mPremium.find()) {
                         String url = mPremium.group(1);
-                        if (url.startsWith("/kredit"))
-                            setMessage("Credit depleted, using FREE download");
-                        else {
-                            Matcher mData = rePremiumDataLeft.matcher(cb);
-                            String msg = "Using premium download";
-                            
-                            if (mData.find())
-                                msg += " ("+mData.group(1)+" left)";
-                            
-                            setMessage(msg);
-                            startDownload(url);
-                            return;
-                        }
+                        
+                        Matcher mData = rePremiumDataLeft.matcher(cb);
+                        String msg = "Using premium download";
+
+                        if (mData.find())
+                            msg += " ("+mData.group(1)+" left)";
+
+                        setMessage(msg);
+                        startDownload(url);
+                        return;
+
                     } else if (loggedIn)
                         setMessage("Login failed, using FREE download");
                     if (mName.find())
@@ -138,7 +138,7 @@ public class UloztoDownload extends DownloadPlugin {
                             
                             rememberCaptcha(captchaCode, captchaUrl, text);
                             
-                            fetchPage(mAction.group(1), new PageFetchListener() {
+                            fetchPage("http://www.uloz.to" + mAction.group(1), new PageFetchListener() {
 
                                 @Override
                                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
@@ -154,7 +154,7 @@ public class UloztoDownload extends DownloadPlugin {
                                     setFailed(error);
                                 }
 
-                            }, "captcha_nb="+captchaCode+"&captcha_user="+text+"&download=St%C3%A1hnout%20FREE");
+                            }, "captcha[id]="+captchaCode+"&captcha[text]="+text+"&freeDownload=St%C3%A1hnout");
 
                         }
                     });

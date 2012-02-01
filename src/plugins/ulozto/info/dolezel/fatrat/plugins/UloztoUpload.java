@@ -22,6 +22,7 @@ package info.dolezel.fatrat.plugins;
 
 import info.dolezel.fatrat.plugins.annotations.UploadPluginInfo;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -37,38 +38,19 @@ import java.util.regex.Pattern;
 @UploadPluginInfo(name="Uloz.to uploader", sizeLimit = 1000*1000*1000*2)
 public class UloztoUpload extends UploadPlugin {
 
-    static final Pattern reSid = Pattern.compile("\"/ajax/uploader\\.php\\?tmp_sid=([^\"]+)\"");
-    static final Pattern reFid = Pattern.compile("&fileid=(\\d+)");
+    private static final Pattern reDownloadLink = Pattern.compile("-linkShow\" value=\"([^\"]+)\"");
+    private static final Pattern reKillLink = Pattern.compile("-linkDelete\" value=\"([^\"]+)\"");
 
     @Override
     public void processFile(String filePath) {
-        setMessage("Getting a session ID");
-        
-        fetchPage("http://www.uloz.to", new PageFetchListener() {
+            String url = "http://upload.uloz.to/upload?user_id=0&host=uloz.to";
+            MimePart[] parts = new MimePart[3];
+            parts[0] = new MimePartFile("upfile_0");
+            parts[1] = new MimePartValue("no_script", "1");
+            parts[2] = new MimePartValue("no_script_submit", "Nahr%C3%A9t+soubory");
 
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                CharBuffer cb = charsetUtf8.decode(buf);
-                Matcher m = reSid.matcher(cb);
-
-                if (!m.find()) {
-                    setFailed("Failed to get a session ID");
-                    return;
-                }
-
-                String url = "http://up.uloz.to/ul/upload.cgi?tmp_sid="+m.group(1)+"&user_id=0&host=www.uloz.to";
-                MimePart[] parts = new MimePart[3];
-                parts[0] = new MimePartFile("upfile_0");
-                parts[1] = new MimePartValue("no_script", "1");
-                parts[2] = new MimePartValue("no_script_submit", "Nahr%C3%A9t+soubory");
-
-                setMessage("Uploading");
-                startUpload(url, parts);
-            }
-
-            public void onFailed(String error) {
-                setFailed("Failed to load www.uloz.to");
-            }
-        }, null);
+            setMessage("Uploading");
+            startUpload(url, parts);
     }
 
     @Override
@@ -77,30 +59,57 @@ public class UloztoUpload extends UploadPlugin {
         if (location == null)
             setFailed("The upload has failed for an unknown reason (#1)");
         else {
-            Matcher m = reFid.matcher(location);
-            if (!m.find())
-                setFailed("The upload has failed for an unknown reason (#2)");
-            else {
-                final String url = "http://www.uloz.to/"+m.group(1);
+            fetchPage(urlDecode(location), new PageFetchListener() {
 
-                setMessage("Getting the download URL");
+                @Override
+                public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                    String location = headers.get("location");
+                    if (location == null)
+                        setFailed("The upload has failed for an unknown reason (#2)");
                 
-                fetchPage(url, new PageFetchListener() {
+                    checkResponse2(urlDecode(location));
+                }
 
-                    public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                        String loc = headers.get("location");
-                        if (loc == null)
-                            loc = url;
+                @Override
+                public void onFailed(String error) {
+                    setFailed(error);
+                }
+            });
+        }
+    }
+    
+    private void checkResponse2(String url) {
+        fetchPage(url, new PageFetchListener() {
+            @Override
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                CharBuffer cb = charsetUtf8.decode(buf);
+                Matcher mDownload = reDownloadLink.matcher(cb);
+                Matcher mKill = reKillLink.matcher(cb);
+                String kill = null;
 
-                        putDownloadLink(loc, null);
-                        setMessage("Done");
-                    }
+                if (!mDownload.find()) {
+                    setFailed("Failed to find the download link");
+                    return;
+                }
 
-                    public void onFailed(String error) {
-                        setFailed("Failed to get the download URL");
-                    }
-                }, null);
+                if (mKill.find())
+                    kill = mKill.group(1);
+
+                UloztoUpload.this.putDownloadLink(mDownload.group(1), kill);
             }
+            
+            @Override
+            public void onFailed(String error) {
+                setFailed(error);
+            }
+        });
+    }
+    
+    private static String urlDecode(String str) {
+        try {
+            return URLDecoder.decode(str, "UTF-8");
+        } catch (Exception e) {
+            return null;
         }
     }
 
