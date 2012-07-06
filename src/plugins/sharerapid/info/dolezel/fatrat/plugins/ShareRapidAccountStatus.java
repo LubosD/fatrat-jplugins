@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  */
 @AccountStatusPluginInfo(name="Share-Rapid.com")
 public class ShareRapidAccountStatus extends AccountStatusPlugin {
-    static final Pattern reBalance = Pattern.compile("<td>Kredit:</td><td>([^<]+)");
+    static final Pattern reBalance = Pattern.compile("<td>GB:</td><td>([^<]+)");
     static final Pattern reHidden = Pattern.compile("<input type=\"hidden\" id=\"[^\"]+\" name=\"hash\" value=\"([^\"]+)\"");
 
     @Override

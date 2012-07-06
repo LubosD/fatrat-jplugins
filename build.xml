@@ -24,6 +24,7 @@
 		<pathelement location="${lib}/commons-codec.jar"/> 
 		<pathelement location="${lib}/commons-io.jar"/>
 		<pathelement location="${lib}/jsoup.jar"/>
+		<pathelement location="${lib}/js-14.jar"/>
 		<pathelement location="${dist}/json.jar"/>
 	</path>
 	
@@ -68,7 +69,7 @@
 	<target name="compile-ulozto" depends="jar-core">
 			<mkdir dir="${build}/plugins/ulozto"/>
 			<copy file="${src}/plugins/ulozto/ulozto.xml" todir="${build}/plugins/ulozto"/>
-			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" source="1.6" target="1.6"/>
+			<javac srcdir="${src}/plugins/ulozto" destdir="${build}/plugins/ulozto" classpathref="classpath" source="1.6" target="1.6" debug="true" />
 	</target>
 	
 	<target name="compile-hellshare" depends="jar-core">

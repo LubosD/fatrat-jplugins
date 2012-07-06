@@ -25,13 +25,14 @@ import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.util.FormatUtils;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -39,9 +40,44 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 @SearchPluginInfo(name = "Ulož.to")
 public class UloztoSearch extends SearchPlugin {
-    private static final Pattern reLinkAndName = Pattern.compile("<a class=\"name\" href=\"([^\"]+)\" title=\"([^\"]+)\"");
-    private static final Pattern reSizeAndDuration = Pattern.compile("<span class=\"fileSize\">(.+)");
-    private static final Pattern reDuration = Pattern.compile("<span class=\"fileTime\">([^<]+)</span>");
+    
+    private void processSearchResults(String cb, UloztoLinkDecoder dec) {
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        Document doc = Jsoup.parseBodyFragment(cb);
+
+        Elements lis = doc.getElementsByTag("li");
+
+        for (Element li : lis) {
+            SearchResult sr = new SearchResult();
+
+            String encrypted;
+            Elements name = li.select(".fileName .name");
+
+            if (name.isEmpty())
+                continue;
+
+            sr.name = name.get(0).ownText();
+            encrypted = name.get(0).attr("data-icon");
+
+            Elements size = li.select(".fileInfo .fileSize");
+            if (!size.isEmpty())
+                sr.fileSize = FormatUtils.parseSize(size.get(0).ownText());
+
+            size = li.select(".fileInfo .fileTime");
+            if (!size.isEmpty())
+                sr.extraInfo = "Duration: " + size.get(0).ownText();
+
+            Elements link = li.select(".fileReset");
+            if (link.isEmpty())
+                continue;
+            
+            sr.url = "http://www.uloz.to" + dec.decode(encrypted);
+            
+            results.add(sr);
+        }
+
+        searchDone(results);
+    }
 
     @Override
     public void search(final String query) {
@@ -50,30 +86,21 @@ public class UloztoSearch extends SearchPlugin {
 
                 @Override
                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                    CharBuffer cb = charsetUtf8.decode(buf);
-                    List<SearchResult> results = new ArrayList<SearchResult>();
+                    final String cb = charsetUtf8.decode(buf).toString();
+                    final UloztoLinkDecoder dec = new UloztoLinkDecoder();
                     
-                    Matcher mSD = reSizeAndDuration.matcher(cb);
-                    while (mSD.find()) {
-                        SearchResult sr = new SearchResult();
-                        Matcher mDuration = reDuration.matcher(mSD.group(1));
-                        
-                        sr.fileSize = FormatUtils.parseSize(mSD.group(1));
-                        
-                        if (mDuration.find())
-                            sr.extraInfo = "Duration: " + mDuration.group(1);
-                        
-                        Matcher mName = reLinkAndName.matcher(cb);
-                        if (!mName.find(mSD.end()))
-                            break;
-                        
-                        sr.name = StringEscapeUtils.unescapeHtml(mName.group(2));
-                        sr.url = "http://www.uloz.to" + StringEscapeUtils.unescapeHtml(mName.group(1));
-                        
-                        results.add(sr);
-                    }
-                    
-                    searchDone(results);
+                    dec.autoLoad(UloztoSearch.this, cb, new UloztoLinkDecoder.InitDone() {
+
+                        @Override
+                        public void done() {
+                            processSearchResults(cb, dec);
+                        }
+
+                        @Override
+                        public void failed() {
+                            searchFailed();
+                        }
+                    });
                 }
 
                 @Override
@@ -81,7 +108,7 @@ public class UloztoSearch extends SearchPlugin {
                     searchFailed();
                 }
 
-            });
+            }, null, Collections.singletonMap("X-Requested-With", "XMLHttpRequest"));
         } catch (Exception e) {
             searchFailed();
         }
