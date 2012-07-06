@@ -65,13 +65,18 @@ public class RapidShareLinkChecker extends LinkCheckerPlugin {
                 
                 broken.addAll(map.values());
                 
-                reportWorking(working.toArray(new String[working.size()]));
-                reportBroken(broken.toArray(new String[broken.size()]));
+                if (!working.isEmpty())
+                    reportWorking(working.toArray(new String[working.size()]));
+                
+                if (!broken.isEmpty())
+                    reportBroken(broken.toArray(new String[broken.size()]));
+                
+                reportDone();
             }
 
             @Override
             public void onFailed(String error) {
-                reportBroken(links);
+                reportDone();
             }
         });
     }

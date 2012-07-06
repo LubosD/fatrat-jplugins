@@ -25,16 +25,13 @@ import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.listeners.ReCaptchaListener;
 import info.dolezel.fatrat.plugins.listeners.WaitListener;
-import info.dolezel.fatrat.plugins.util.ByteBufferInputStream;
 import info.dolezel.fatrat.plugins.util.FormatUtils;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Extend this class to create a new download plugin.

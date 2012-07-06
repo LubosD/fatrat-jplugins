@@ -7,12 +7,15 @@ package info.dolezel.fatrat.plugins;
 import info.dolezel.fatrat.plugins.annotations.AccountStatusPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
+import info.dolezel.fatrat.plugins.util.FormatUtils;
 import info.dolezel.fatrat.plugins.util.PostQuery;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.util.Collections;
 import java.util.Map;
-import java.util.regex.Matcher;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -29,18 +32,18 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
         if ("".equals(user))
             return false;
         
-        this.fetchPage("http://www.uloz.to/?do=authForm-submit", new PageFetchListener() {
+        logIn(this, new LoginResultCallback() {
 
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+            @Override
+            public void success() {
                 loadFrontPage();
             }
 
-            public void onFailed(String error) {
-                reportAccountBalance(AccountState.AccountError, error);
+            @Override
+            public void failure() {
+                reportAccountBalance(AccountState.AccountError, "Nelze se přihlásit");
             }
-        }, new PostQuery().add("username", user).add("password", password).add("login", "Přihlásit").toString(),
-            Collections.singletonMap("Referer", "http://www.uloz.to/")
-        );
+        });
         
         return true;
     }
@@ -48,24 +51,95 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
     private void loadFrontPage() {
         fetchPage("http://www.uloz.to", new PageFetchListener() {
 
+            @Override
             public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
                 CharBuffer cb = charsetUtf8.decode(buf);
+                Document doc = Jsoup.parse(cb.toString());
                 
-                Matcher m = UloztoDownload.rePremiumDataLeft.matcher(cb);
-                if (!m.find()) {
+                Elements aCredits = doc.getElementsByAttributeValue("href", "/kredit/");
+                
+                if (aCredits.isEmpty()) {
                     reportAccountBalance(AccountState.AccountError, "Login failed");
                 } else {
-                    String bal = m.group(1);
-                    long bytes = parseSize(bal);
+                    String bal = aCredits.get(0).ownText();
+                    long bytes = FormatUtils.parseSize(bal);
                     reportAccountBalance(adviseState(bytes), bal);
                 }
             }
 
+            @Override
             public void onFailed(String error) {
                 reportAccountBalance(AccountState.AccountError, error);
             }
         });
         
+    }
+    
+    public static interface LoginResultCallback {
+        void success();
+        void failure();
+    }
+    
+    public static void logIn(final Plugin plugin, final LoginResultCallback callback) {
+        final String user = (String) Settings.getValue("ulozto/user", "");
+        final String password = (String) Settings.getValue("ulozto/password", "");
+        
+        plugin.fetchPage("http://www.uloz.to/?do=web-login", new PageFetchListener() {
+
+            @Override
+            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                String loc = headers.get("location");
+                if (loc == null) {
+                    callback.failure();
+                    return;
+                }
+                
+                plugin.fetchPage(loc, new PageFetchListener() {
+                    @Override
+                    public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                        CharBuffer cb = plugin.charsetUtf8.decode(buf);
+                        Document doc = Jsoup.parse(cb.toString());
+                        Element e = doc.getElementById("frm-loginForm");
+                        
+                        if (e == null) {
+                            callback.failure();
+                            return;
+                        }
+                        
+                        PostQuery pq = new PostQuery();
+                        pq.add("login", "Přihlásit");
+                        pq.add("username", user);
+                        pq.add("password", password);
+
+                        plugin.fetchPage("http://www.uloz.to" + e.attr("action"), new PageFetchListener() {
+
+                            @Override
+                            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                                if (headers.containsKey("location"))
+                                    callback.success();
+                                else
+                                    callback.failure();
+                            }
+
+                            @Override
+                            public void onFailed(String error) {
+                                callback.failure();
+                            }
+                        }, pq.toString());
+                    }
+                    @Override
+                    public void onFailed(String error) {
+                        callback.failure();
+                    }
+                });
+                
+            }
+
+            @Override
+            public void onFailed(String error) {
+                callback.failure();
+            }
+        });
     }
     
 }

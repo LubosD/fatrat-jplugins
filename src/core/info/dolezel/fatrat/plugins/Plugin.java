@@ -33,7 +33,7 @@ public abstract class Plugin extends NativeObject {
     /**
      * Useful for decoding ByteArrays from {@link #fetchPage}
      */
-    final Charset charsetUtf8 = Charset.forName("UTF-8");
+    protected final Charset charsetUtf8 = Charset.forName("UTF-8");
     
     protected Plugin() {
     }

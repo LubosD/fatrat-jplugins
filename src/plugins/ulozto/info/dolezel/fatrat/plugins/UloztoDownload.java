@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2011 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2012 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,39 +20,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package info.dolezel.fatrat.plugins;
 
+import info.dolezel.fatrat.plugins.UloztoAccountStatus.LoginResultCallback;
 import info.dolezel.fatrat.plugins.annotations.ConfigDialog;
 import info.dolezel.fatrat.plugins.annotations.DownloadPluginInfo;
 import info.dolezel.fatrat.plugins.config.Settings;
 import info.dolezel.fatrat.plugins.listeners.PageFetchListener;
 import info.dolezel.fatrat.plugins.util.PostQuery;
+import info.dolezel.fatrat.plugins.listeners.CaptchaListener;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collections;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
  * @author lubos
  */
-@DownloadPluginInfo(regexp = "http://(www.)?uloz\\.to/(live/)?\\d+/.+", name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
+@DownloadPluginInfo(regexp = "http://(www.)?uloz\\.to/(live/)?\\w+/.+", name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("ulozto.xml")
 public class UloztoDownload extends DownloadPlugin {
-
-    static final Pattern reImage = Pattern.compile("src=\"(http://img\\.uloz\\.to/captcha/(\\d+)\\.png)\"");
-    static final Pattern reAction = Pattern.compile("<form action=\"([^\"]+)\" method=\"post\" id=\"frm-downloadDialog-freeDownloadForm\"");
-    static final Pattern reFileName = Pattern.compile("<a href=\"#download\" class=\"jsShowDownload\">([^\"]+)</a>");
-    static final Pattern rePremiumLink = Pattern.compile("<div class=\"downloadForm\"><form action=\"([^\"]+)\" method=\"post\" id=\"frm-downloadDialog-downloadForm\">");
-    static final Pattern rePremiumDataLeft = Pattern.compile("<li class=\"menu-kredit\"><a href=\"/kredit/\" title=\"[^\"]+\">([^\"]+)</a>");
-
-    static RememberedCaptcha rememberedCaptcha;
     
     boolean loggedIn = false;
 
@@ -90,43 +81,47 @@ public class UloztoDownload extends DownloadPlugin {
                         return;
                     }
                     
-                    final Matcher m = reImage.matcher(cb);
-                    final Matcher mAction = reAction.matcher(cb);
-                    Matcher mName = reFileName.matcher(cb);
-                    Matcher mPremium = rePremiumLink.matcher(cb);
+                    final Document doc = Jsoup.parse(cb.toString());
+                    final Element freeForm = doc.getElementById("frm-downloadDialog-freeDownloadForm");
+                    final Elements premiumLink = doc.select("#download a.button");
+                    final Element captchaImage = doc.getElementById("captcha_img");
                     
                     String user = (String) Settings.getValue("ulozto/user", "");
 
                     if (cb.toString().contains("Nemáš dostatek kreditu"))
                         setMessage("Credit depleted, using FREE download");
-                    else if (!user.isEmpty() && mPremium.find()) {
-                        String url = mPremium.group(1);
-                        
-                        Matcher mData = rePremiumDataLeft.matcher(cb);
+                    else if (!user.isEmpty() && !premiumLink.isEmpty()) {
                         String msg = "Using premium download";
+                        
+                        Elements aCredits = doc.getElementsByAttributeValue("href", "/kredit");
 
-                        if (mData.find())
-                            msg += " ("+mData.group(1)+" left)";
+                        if (!aCredits.isEmpty())
+                            msg += " ("+aCredits.get(0).ownText() +" left)";
 
                         setMessage(msg);
-                        startDownload(url);
+                        
+                        startDownload("http://www.uloz.to" + premiumLink.get(0).attr("href"));
                         return;
 
                     } else if (loggedIn)
                         setMessage("Login failed, using FREE download");
-                    if (mName.find())
-                        reportFileName(mName.group(1));
-                    if (!m.find()) {
+                    
+                    Elements aNames = doc.getElementsByClass("jsShowDownload");
+                    if (!aNames.isEmpty())
+                        reportFileName(aNames.get(0).ownText());
+                    if (captchaImage == null) {
                         setFailed("Failed to find the captcha code");
                         return;
                     }
-                    if (!mAction.find()) {
-                        setFailed("Failed to find the form action");
-                        return;
-                    }
+                    
+                    final PostQuery pq = new PostQuery();
+                    Elements eHiddens = freeForm.select("input[type=hidden]");
+                    
+                    pq.add("freeDownload", "St%C3%A1hnout");
+                    for (Element e : eHiddens)
+                        pq.add(e.attr("name"), e.attr("value"));
 
-                    final String captchaUrl = m.group(1);
-                    UloztoDownload.this.mySolveCaptcha(captchaUrl, new CachedCaptchaListener(m.group(2)) {
+                    solveCaptcha(captchaImage.attr("src"), new CaptchaListener() {
 
                         @Override
                         public void onFailed() {
@@ -134,11 +129,11 @@ public class UloztoDownload extends DownloadPlugin {
                         }
 
                         @Override
-                        public void onSolved(String text, String captchaCode) {
+                        public void onSolved(String text) {
+                        
+                        pq.add("captcha_value", text);
                             
-                            rememberCaptcha(captchaCode, captchaUrl, text);
-                            
-                            fetchPage("http://www.uloz.to" + mAction.group(1), new PageFetchListener() {
+                            fetchPage("http://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
 
                                 @Override
                                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
@@ -154,7 +149,7 @@ public class UloztoDownload extends DownloadPlugin {
                                     setFailed(error);
                                 }
 
-                            }, "captcha[id]="+captchaCode+"&captcha[text]="+text+"&freeDownload=St%C3%A1hnout");
+                            }, pq.toString());
 
                         }
                     });
@@ -192,110 +187,29 @@ public class UloztoDownload extends DownloadPlugin {
         }
     }
 
-    private void mySolveCaptcha(final String captchaUrl, final CachedCaptchaListener captchaListener) {
-        if (rememberedCaptcha != null) {
-            // check if still valid
-            fetchPage(rememberedCaptcha.url, new PageFetchListener() {
-
-                @Override
-                public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                    try {
-                        if (Arrays.equals(rememberedCaptcha.md5, MD5(buf))) {
-                            captchaListener.onSolved(rememberedCaptcha.code, rememberedCaptcha.id);
-                            return;
-                        }
-                    } catch (Exception ex) {
-                    }
-
-                    rememberedCaptcha = null;
-                    solveCaptcha(captchaUrl, captchaListener);
-                }
-
-                @Override
-                public void onFailed(String error) {
-                    rememberedCaptcha = null;
-                    solveCaptcha(captchaUrl, captchaListener);
-                }
-            }, null);
-        } else
-            solveCaptcha(captchaUrl, captchaListener);
-    }
-
-    private void rememberCaptcha(final String id, final String captchaUrl, final String solved) {
-        if (rememberedCaptcha != null && rememberedCaptcha.id.equals(id))
-            return;
-        
-        fetchPage(captchaUrl, new PageFetchListener() {
-
-            @Override
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                try {
-                    RememberedCaptcha rc = new RememberedCaptcha();
-
-                    rc.id = id;
-                    rc.code = solved;
-                    rc.url = captchaUrl;
-                    rc.md5 = MD5(buf);
-
-                    rememberedCaptcha = rc;
-                } catch (Exception ex) {
-                }
-            }
-
-            @Override
-            public void onFailed(String error) {
-            }
-
-        }, null);
-    }
-
-    @Override
-    public void onFailed() {
-        rememberedCaptcha = null;
-    }
-
-    public static byte[] MD5(ByteBuffer data) throws NoSuchAlgorithmException, UnsupportedEncodingException  {
-        MessageDigest md;
-        md = MessageDigest.getInstance("MD5");
-        byte[] md5hash = new byte[32];
-        md.update(data);
-        md5hash = md.digest();
-        return md5hash;
-    }
-
     private boolean logIn(final String link) {
         if (loggedIn)
             return true;
         
         String user = (String) Settings.getValue("ulozto/user", "");
-        String password = (String) Settings.getValue("ulozto/password", "");
-        
         if ("".equals(user))
             return true;
         
-        this.fetchPage("http://www.uloz.to/?do=authForm-submit", new PageFetchListener() {
+        UloztoAccountStatus.logIn(this, new LoginResultCallback() {
 
             @Override
-            public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+            public void success() {
                 loggedIn = true;
                 processLink(link);
             }
 
             @Override
-            public void onFailed(String error) {
-                setFailed(error);
+            public void failure() {
+                setFailed("Failed to log in");
             }
-        }, new PostQuery().add("username", user).add("password", password).add("login", "Přihlásit").toString(),
-            Collections.singletonMap("Referer", "http://www.uloz.to/")
-        );
+        });
         
         return false;
-    }
-
-    private static class RememberedCaptcha {
-        public String id;
-        public String code, url;
-        public byte[] md5;
     }
 }
 

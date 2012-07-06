@@ -54,11 +54,11 @@ class JarClassLoader extends URLClassLoader {
     }
     
     public JarClassLoader() {
-        this(ClassLoader.getSystemClassLoader());
+        this(JarClassLoader.class.getClassLoader());
     }
     
     public JarClassLoader addExtension(String path) throws MalformedURLException {
-        JarClassLoader child = new JarClassLoader(this);
+        JarClassLoader child = new JarClassLoader(JarClassLoader.class.getClassLoader());
         child.addJar(path);
         children.put(path, child);
         loadedExtensions.add(path);
@@ -71,8 +71,11 @@ class JarClassLoader extends URLClassLoader {
         return children.remove(path);
     }
 
+
     private void addJar(String path) throws MalformedURLException {
-        URL url = new URL("jar", "", "file:"+ path + "!/");
+        URL url;
+        
+        url = new URL("jar", "", "file:"+ path + "!/");
         addURL(url);
     }
     

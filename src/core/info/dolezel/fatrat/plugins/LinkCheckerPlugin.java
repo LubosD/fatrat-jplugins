@@ -29,4 +29,5 @@ public abstract class LinkCheckerPlugin extends Plugin {
     
     protected native final void reportBroken(String[] links);
     protected native final void reportWorking(String[] links);
+    protected native final void reportDone();
 }

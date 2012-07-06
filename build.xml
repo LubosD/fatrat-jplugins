@@ -23,6 +23,7 @@
 		<pathelement location="${lib}/commons-lang.jar"/> 
 		<pathelement location="${lib}/commons-codec.jar"/> 
 		<pathelement location="${lib}/commons-io.jar"/>
+		<pathelement location="${lib}/jsoup.jar"/>
 		<pathelement location="${dist}/json.jar"/>
 	</path>
 	
@@ -51,7 +52,7 @@
 	
 	<target name="compile-ws" depends="jar-core">
 			<mkdir dir="${build}/ws"/>
-			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"  debug="true"/>
+			<javac srcdir="${src}/ws" destdir="${build}/ws" classpathref="classpath_ws" source="1.6" target="1.6"/>
 	</target>
 	
 	<target name="compile-json">
