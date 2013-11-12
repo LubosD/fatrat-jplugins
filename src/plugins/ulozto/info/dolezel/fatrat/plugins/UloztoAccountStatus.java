@@ -100,6 +100,7 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
                         CharBuffer cb = plugin.charsetUtf8.decode(buf);
                         Document doc = Jsoup.parse(cb.toString());
                         Element e = doc.getElementById("frm-loginForm");
+                        Elements inputs;
                         
                         if (e == null) {
                             callback.failure();
@@ -110,6 +111,14 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
                         pq.add("login", "Přihlásit");
                         pq.add("username", user);
                         pq.add("password", password);
+                        
+                        inputs = e.getElementsByTag("input");
+                        
+                        for (Element input : inputs) {
+                            if ("hidden".equals(input.attr("type"))) {
+                                pq.add(input.attr("name"), input.attr("value"));
+                            }
+                        }
 
                         plugin.fetchPage("http://www.uloz.to" + e.attr("action"), new PageFetchListener() {
 
