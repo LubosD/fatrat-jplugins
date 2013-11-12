@@ -112,12 +112,10 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
                         pq.add("username", user);
                         pq.add("password", password);
                         
-                        inputs = e.getElementsByTag("input");
+                        inputs = e.select("input[type=hidden]");
                         
                         for (Element input : inputs) {
-                            if ("hidden".equals(input.attr("type"))) {
-                                pq.add(input.attr("name"), input.attr("value"));
-                            }
+                            pq.add(input.attr("name"), input.attr("value"));
                         }
 
                         plugin.fetchPage("http://www.uloz.to" + e.attr("action"), new PageFetchListener() {
