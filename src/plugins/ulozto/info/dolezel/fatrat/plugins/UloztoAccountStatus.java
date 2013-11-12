@@ -56,7 +56,7 @@ public class UloztoAccountStatus extends AccountStatusPlugin {
                 CharBuffer cb = charsetUtf8.decode(buf);
                 Document doc = Jsoup.parse(cb.toString());
                 
-                Elements aCredits = doc.getElementsByAttributeValue("href", "/kredit/");
+                Elements aCredits = doc.getElementsByAttributeValue("data-gaaction", "Credit");
                 
                 if (aCredits.isEmpty()) {
                     reportAccountBalance(AccountState.AccountError, "Login failed");
