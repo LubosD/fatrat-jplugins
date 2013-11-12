@@ -84,7 +84,7 @@ public class UloztoDownload extends DownloadPlugin {
                     final Document doc = Jsoup.parse(cb.toString());
                     final Element freeForm = doc.getElementById("frm-downloadDialog-freeDownloadForm");
                     final Elements premiumLink = doc.select("#download a.button");
-                    final Element captchaImage = doc.getElementById("captcha_img");
+                    Element captchaImage = doc.getElementById("captcha_img");
                     
                     String user = (String) Settings.getValue("ulozto/user", "");
 
@@ -110,8 +110,17 @@ public class UloztoDownload extends DownloadPlugin {
                     if (!aNames.isEmpty())
                         reportFileName(aNames.get(0).ownText());
                     if (captchaImage == null) {
-                        setFailed("Failed to find the captcha code");
-                        return;
+                        Elements captchaClass = doc.getElementsByClass("captchaContainer");
+                        if (captchaClass.isEmpty()) {
+                            setFailed("Failed to find the captchaContainer");
+                            return;
+                        }
+                        Elements captchaList = captchaClass.get(0).children();
+                        if (captchaClass.get(0).children().isEmpty()) {
+                            setFailed("Failed to find the captcha, captchaContainer is empty");
+                            return;
+                        }
+                        captchaImage = captchaClass.get(0).child(0);
                     }
                     
                     final PostQuery pq = new PostQuery();
