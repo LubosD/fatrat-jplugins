@@ -102,14 +102,18 @@ public class YouTubeDownload extends DownloadPlugin {
                         
                         String url = null;
                         int code = 0;
+                        String sig = null;
                         
                         for (String tok : tokens) {
                             if (tok.startsWith("url="))
                                 url = URLDecoder.decode(tok.substring(4), "UTF-8");
                             else if (tok.startsWith("itag="))
                                 code = Integer.parseInt(tok.substring(5));
+                            else if (tok.startsWith("sig="))
+                                sig = tok.substring(4);
                         }
 
+                        url += "&signature=" + sig;
                         System.out.println("URL: "+url);
 
                         if (url != null && code != 0)
