@@ -41,7 +41,9 @@ import org.jsoup.select.Elements;
  *
  * @author lubos
  */
-@DownloadPluginInfo(regexp = "http://(www.)?uloz\\.to/(live/)?\\w+/.+", name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
+@DownloadPluginInfo(regexp = 
+"http://(www\\.|m\\.)?uloz\\.to/(live/)?\\w+/.+", 
+name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("ulozto.xml")
 public class UloztoDownload extends DownloadPlugin {
     
@@ -54,6 +56,8 @@ public class UloztoDownload extends DownloadPlugin {
             link = link.replace("/live/", "/");
         if (link.startsWith("http://uloz.to"))
             link = link.replace("http://uloz.to", "http://www.uloz.to");
+        if (link.startsWith("http://m.uloz.to"))
+            link = link.replace("http://m.uloz.to", "http://www.uloz.to");
         
         if (!logIn(link))
             return;
