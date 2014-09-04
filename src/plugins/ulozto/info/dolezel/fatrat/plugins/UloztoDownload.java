@@ -32,6 +32,8 @@ import java.nio.CharBuffer;
 import java.util.Map;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashMap;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -128,9 +130,13 @@ public class UloztoDownload extends DownloadPlugin {
                     }
                     
                     final PostQuery pq = new PostQuery();
+                    final Map<String,String> hdr = new HashMap<String,String>();
                     Elements eHiddens = freeForm.select("input[type=hidden]");
                     
-                    pq.add("freeDownload", "St%C3%A1hnout");
+                    hdr.put("X-Requested-With", "XMLHttpRequest");
+                    hdr.put("Referer", downloadLink);
+                    hdr.put("Accept", "application/json, text/javascript, */*; q=0.01");
+                    
                     for (Element e : eHiddens)
                         pq.add(e.attr("name"), e.attr("value"));
 
@@ -150,11 +156,14 @@ public class UloztoDownload extends DownloadPlugin {
 
                                 @Override
                                 public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                                    String target = headers.get("location");
-                                    if (target == null)
-                                        setFailed("Failed to get the redirect URL");
-                                    else
-                                        startDownload(target);
+                                    try {
+                                        CharBuffer cb = charsetUtf8.decode(buf);
+                                        JSONObject obj = new JSONObject(cb.toString());
+                                        
+                                        startDownload(obj.getString("url"));
+                                    } catch (Exception e) {
+                                        setFailed(""+e);
+                                    }
                                 }
 
                                 @Override
@@ -162,7 +171,7 @@ public class UloztoDownload extends DownloadPlugin {
                                     setFailed(error);
                                 }
 
-                            }, pq.toString());
+                            }, pq.toString(), hdr);
 
                         }
                     });
