@@ -33,6 +33,8 @@ import java.util.Map;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
+import java.util.Random;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -92,11 +94,11 @@ public class UloztoDownload extends DownloadPlugin {
                     final Elements premiumLink = doc.select("#download a.button");
                     Element captchaImage = doc.getElementById("captcha_img");
                     
-                    String user = (String) Settings.getValue("ulozto/user", "");
+                    boolean usePremium = usePremium(downloadLink);
 
                     if (cb.toString().contains("Nemáš dostatek kreditu"))
                         setMessage("Credit depleted, using FREE download");
-                    else if (!user.isEmpty() && !premiumLink.isEmpty()) {
+                    else if (usePremium && !premiumLink.isEmpty()) {
                         String msg = "Using premium download";
                         
                         Elements aCredits = doc.getElementsByAttributeValue("href", "/kredit");
@@ -139,42 +141,70 @@ public class UloztoDownload extends DownloadPlugin {
                     
                     for (Element e : eHiddens)
                         pq.add(e.attr("name"), e.attr("value"));
-
-                    solveCaptcha(captchaImage.attr("src"), new CaptchaListener() {
-
-                        @Override
-                        public void onFailed() {
-                            setFailed("Failed to decode the captcha code");
-                        }
+                    
+                    fetchPage("http://uloz.to/reloadXapca.php?rnd=" + Math.abs(new Random().nextInt()), new PageFetchListener() {
 
                         @Override
-                        public void onSolved(String text) {
-                        
-                        pq.add("captcha_value", text);
+                        public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                            CharBuffer cb = charsetUtf8.decode(buf);
+                            String captchaUrl;
                             
-                            fetchPage("http://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
+                            try {
+                                JSONObject json = new JSONObject(cb.toString());
+                                captchaUrl = json.getString("image");
+                                pq.add("hash", json.getString("hash"));
+                                pq.add("timestamp", "" + json.getInt("timestamp"));
+                                pq.add("salt", ""+json.getInt("salt"));
+                            } catch (JSONException e) {
+                                setFailed("Error parsing captcha JSON");
+                                return;
+                            }
+                            
+                            solveCaptcha(captchaUrl, new CaptchaListener() {
 
                                 @Override
-                                public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
-                                    try {
-                                        CharBuffer cb = charsetUtf8.decode(buf);
-                                        JSONObject obj = new JSONObject(cb.toString());
-                                        
-                                        startDownload(obj.getString("url"));
-                                    } catch (Exception e) {
-                                        setFailed(""+e);
-                                    }
+                                public void onFailed() {
+                                    setFailed("Failed to decode the captcha code");
                                 }
 
                                 @Override
-                                public void onFailed(String error) {
-                                    setFailed(error);
+                                public void onSolved(String text) {
+
+                                    pq.add("captcha_value", text);
+
+                                    fetchPage("http://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
+
+                                        @Override
+                                        public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
+                                            try {
+                                                CharBuffer cb = charsetUtf8.decode(buf);
+                                                JSONObject obj = new JSONObject(cb.toString());
+
+                                                startDownload(obj.getString("url"));
+                                            } catch (Exception e) {
+                                                setFailed(""+e);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailed(String error) {
+                                            setFailed(error);
+                                        }
+
+                                    }, pq.toString(), hdr);
+
                                 }
-
-                            }, pq.toString(), hdr);
-
+                            });
                         }
+
+                        @Override
+                        public void onFailed(String error) {
+                            setFailed("Failed to load captcha AJAX page");
+                        }
+                        
                     });
+
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                     setFailed(e.toString());
@@ -213,6 +243,9 @@ public class UloztoDownload extends DownloadPlugin {
         if (loggedIn)
             return true;
         
+        if (!usePremium(link))
+            return true;
+        
         String user = (String) Settings.getValue("ulozto/user", "");
         if ("".equals(user))
             return true;
@@ -232,6 +265,12 @@ public class UloztoDownload extends DownloadPlugin {
         });
         
         return false;
+    }
+    
+    private boolean usePremium(String link) {
+        if (link.endsWith("#free"))
+            return false;
+        return !Settings.getValue("ulozto/user", "").toString().isEmpty();
     }
 }
 
