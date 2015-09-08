@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2012 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2015 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -56,8 +56,8 @@ public class UloztoDownload extends DownloadPlugin {
     @Override
     public void processLink(String link) {
 
-        if (link.contains("/live/"))
-            link = link.replace("/live/", "/");
+        //if (link.contains("/live/"))
+        //    link = link.replace("/live/", "/");
         if (link.startsWith("http://uloz.to"))
             link = link.replace("http://uloz.to", "http://www.uloz.to");
         if (link.startsWith("http://m.uloz.to"))
