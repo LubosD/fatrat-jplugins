@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+        <groupId>info.dolezel.fatrat.jplugins</groupId>
+        <artifactId>fatrat-jplugins-parent</artifactId>
+        <version>1.2.0_beta2</version>
+    </parent>
+
+	<artifactId>fatrat-jplugins-ws</artifactId>
+	<packaging>jar</packaging>
+
+	<name>fatrat-jplugins-ws</name>
+
+	<dependencies>
+        <dependency>
+            <groupId>info.dolezel.fatrat.jplugins</groupId>
+            <artifactId>fatrat-jplugins-core</artifactId>
+            <version>1.2.0_beta2</version>
+        </dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>fatrat-jplugins-ws</finalName>
+	</build>
+
+</project>

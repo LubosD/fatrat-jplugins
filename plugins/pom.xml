@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>info.dolezel.fatrat.jplugins</groupId>
+        <artifactId>fatrat-jplugins-parent</artifactId>
+        <version>1.2.0_beta2</version>
+    </parent>
+
+    <artifactId>fatrat-jplugins-plugins-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>fatrat-jplugins-plugins-parent</name>
+
+    <modules>
+        <module>czshare</module>
+        <module>dailymotion</module>
+        <module>edisk</module>
+        <module>fileserve</module>
+        <module>filesonic</module>
+        <module>hellshare</module>
+        <module>hotfile</module>
+        <module>jdproto</module>
+        <module>megaupload</module>
+        <module>metacafe</module>
+        <module>netload</module>
+        <module>rapidshare</module>
+        <module>sharerapid</module>
+        <module>ulozto</module>
+        <module>wupload</module>
+        <module>youtube</module>
+    </modules>
+
+    <dependencies>
+        <!-- API -->
+        <dependency>
+            <groupId>info.dolezel.fatrat.jplugins</groupId>
+            <artifactId>fatrat-jplugins-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- JSON -->
+        <dependency>
+            <groupId>info.dolezel.fatrat.jplugins</groupId>
+            <artifactId>fatrat-jplugins-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <!-- Commons libraries -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+        <!-- Java HTML parser -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <!-- Rhine JavaScript engine -->
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <!--<addClasspath>true</addClasspath>-->
+                        </manifest>
+                        <manifestEntries>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>
+                            <Implementation-Version>${maven.build.timestamp}.1</Implementation-Version>
+                            <Description>${project.description}</Description>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
