@@ -46,7 +46,7 @@ import org.jsoup.select.Elements;
  * @author lubos
  */
 @DownloadPluginInfo(regexp = 
-"http://(www\\.|m\\.)?uloz\\.to/(live/)?\\w+/.+", 
+"https?://(www\\.|m\\.)?uloz\\.to/(live/)?\\w+/.+", 
 name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("ulozto.xml")
 public class UloztoDownload extends DownloadPlugin {
@@ -58,10 +58,10 @@ public class UloztoDownload extends DownloadPlugin {
 
         //if (link.contains("/live/"))
         //    link = link.replace("/live/", "/");
-        if (link.startsWith("http://uloz.to"))
-            link = link.replace("http://uloz.to", "http://www.uloz.to");
-        if (link.startsWith("http://m.uloz.to"))
-            link = link.replace("http://m.uloz.to", "http://www.uloz.to");
+        if (link.startsWith("http://uloz.to") || link.startsWith("https://uloz.to"))
+            link = link.replace("https?://uloz.to", "https://www.uloz.to");
+        if (link.startsWith("http://m.uloz.to") || link.startsWith("https://m.uloz.to"))
+            link = link.replace("https?://m.uloz.to", "https://www.uloz.to");
         
         if (!logIn(link))
             return;
@@ -142,7 +142,7 @@ public class UloztoDownload extends DownloadPlugin {
                     for (Element e : eHiddens)
                         pq.add(e.attr("name"), e.attr("value"));
                     
-                    fetchPage("http://uloz.to/reloadXapca.php?rnd=" + Math.abs(new Random().nextInt()), new PageFetchListener() {
+                    fetchPage("https://uloz.to/reloadXapca.php?rnd=" + Math.abs(new Random().nextInt()), new PageFetchListener() {
 
                         @Override
                         public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
@@ -151,7 +151,7 @@ public class UloztoDownload extends DownloadPlugin {
                             
                             try {
                                 JSONObject json = new JSONObject(cb.toString());
-                                captchaUrl = json.getString("image");
+                                captchaUrl = "https:" + json.getString("image");
                                 pq.add("hash", json.getString("hash"));
                                 pq.add("timestamp", "" + json.getInt("timestamp"));
                                 pq.add("salt", ""+json.getInt("salt"));
@@ -172,7 +172,7 @@ public class UloztoDownload extends DownloadPlugin {
 
                                     pq.add("captcha_value", text);
 
-                                    fetchPage("http://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
+                                    fetchPage("https://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
 
                                         @Override
                                         public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
