@@ -1,4 +1,0 @@
-<dialog title="Share-rapid.com account settings">
-    <text id="sharerapid/user" title="User" />
-    <password id="sharerapid/password" title="Password" />
-</dialog>

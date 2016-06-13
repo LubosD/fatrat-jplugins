@@ -1,4 +1,0 @@
-<dialog title="RapidShare.com account settings">
-    <text id="rapidshare/username" title="User" />
-    <password id="rapidshare/password" title="Password" />
-</dialog>

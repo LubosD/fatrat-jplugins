@@ -17,21 +17,13 @@
     <name>fatrat-jplugins-plugins-parent</name>
 
     <modules>
-        <module>czshare</module>
         <module>dailymotion</module>
         <module>edisk</module>
         <module>fileserve</module>
-        <module>filesonic</module>
         <module>hellshare</module>
-        <module>hotfile</module>
         <module>jdproto</module>
-        <module>megaupload</module>
         <module>metacafe</module>
-        <module>netload</module>
-        <module>rapidshare</module>
-        <module>sharerapid</module>
         <module>ulozto</module>
-        <module>wupload</module>
         <module>youtube</module>
     </modules>
 
