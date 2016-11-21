@@ -46,7 +46,7 @@ import org.jsoup.select.Elements;
  * @author lubos
  */
 @DownloadPluginInfo(regexp = 
-"https?://(www\\.|m\\.)?uloz\\.to/(live/)?\\w+/.+", 
+"https?://(www\\.|m\\.)?uloz\\.to/(live/)?[^/]+/.+", 
 name = "Uloz.to download", forceSingleTransfer = false, truncIncomplete = false)
 @ConfigDialog("ulozto.xml")
 public class UloztoDownload extends DownloadPlugin {
