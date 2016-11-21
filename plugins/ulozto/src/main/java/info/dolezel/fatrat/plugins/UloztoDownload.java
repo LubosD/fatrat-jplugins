@@ -90,15 +90,14 @@ public class UloztoDownload extends DownloadPlugin {
                     }
                     
                     final Document doc = Jsoup.parse(cb.toString());
-                    final Element freeForm = doc.getElementById("frm-downloadDialog-freeDownloadForm");
-                    final Elements premiumLink = doc.select("#download a.button");
-                    Element captchaImage = doc.getElementById("captcha_img");
+                    final Element freeForm = doc.getElementById("frm-download-freeDownloadTab-freeDownloadForm");
+                    final Element premiumLink = doc.getElementById("#quickDownloadButton");
                     
                     boolean usePremium = usePremium(downloadLink);
 
                     if (cb.toString().contains("Nemáš dostatek kreditu"))
                         setMessage("Credit depleted, using FREE download");
-                    else if (usePremium && !premiumLink.isEmpty()) {
+                    else if (usePremium && premiumLink != null) {
                         String msg = "Using premium download";
                         
                         Elements aCredits = doc.getElementsByAttributeValue("href", "/kredit");
@@ -108,7 +107,7 @@ public class UloztoDownload extends DownloadPlugin {
 
                         setMessage(msg);
                         
-                        startDownload("http://www.uloz.to" + premiumLink.get(0).attr("href"));
+                        startDownload("http://www.uloz.to" + premiumLink.attr("href"));
                         return;
 
                     } else if (loggedIn)
@@ -117,19 +116,6 @@ public class UloztoDownload extends DownloadPlugin {
                     Elements aNames = doc.getElementsByClass("jsShowDownload");
                     if (!aNames.isEmpty())
                         reportFileName(aNames.get(0).ownText());
-                    if (captchaImage == null) {
-                        Elements captchaClass = doc.getElementsByClass("captchaContainer");
-                        if (captchaClass.isEmpty()) {
-                            setFailed("Failed to find the captchaContainer");
-                            return;
-                        }
-                        Elements captchaList = captchaClass.get(0).children();
-                        if (captchaClass.get(0).children().isEmpty()) {
-                            setFailed("Failed to find the captcha, captchaContainer is empty");
-                            return;
-                        }
-                        captchaImage = captchaClass.get(0).child(0);
-                    }
                     
                     final PostQuery pq = new PostQuery();
                     final Map<String,String> hdr = new HashMap<String,String>();
@@ -170,9 +156,10 @@ public class UloztoDownload extends DownloadPlugin {
                                 @Override
                                 public void onSolved(String text) {
 
+                                    String action = freeForm.attr("action");
                                     pq.add("captcha_value", text);
 
-                                    fetchPage("https://www.uloz.to" + freeForm.attr("action"), new PageFetchListener() {
+                                    fetchPage("https://www.uloz.to" + action, new PageFetchListener() {
 
                                         @Override
                                         public void onCompleted(ByteBuffer buf, Map<String, String> headers) {
